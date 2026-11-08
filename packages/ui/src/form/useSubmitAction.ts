@@ -19,7 +19,10 @@ export interface SubmitErrors {
  * Место для отправки в переиспользуемой группе полей.
  * Группа полей подходит к любой форме, которая отправляет данные через действие.
  */
-export const submitSlot = (): Promise<SubmitErrors | undefined> => Promise.resolve(undefined)
+export const submitSlot =
+  <TValues>() =>
+  (_props: { value: TValues }): Promise<SubmitErrors | undefined> =>
+    Promise.resolve(undefined)
 
 /** Действие формы: что отправить, как назвать ошибки и что обновить после успеха. */
 export interface SubmitActionConfig<TValues, TData, TError extends ActionError<string, Extract<keyof TValues, string>>> {
