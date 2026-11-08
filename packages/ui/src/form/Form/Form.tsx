@@ -8,7 +8,10 @@ export interface FormProps {
   className?: string
 }
 
-/** `<form>` wired to the current form: prevents reload and calls `handleSubmit`. */
+/**
+ * `<form>` wired to the current form: prevents reload and calls `handleSubmit`,
+ * so `onSubmit: ({ value }) => mutation.mutateAsync(value)` needs no try/catch.
+ */
 export function Form({ children, className }: FormProps) {
   const form = useFormContext()
   return (
@@ -18,7 +21,8 @@ export function Form({ children, className }: FormProps) {
       onSubmit={(event) => {
         event.preventDefault()
         event.stopPropagation()
-        void form.handleSubmit()
+        // Submit errors are shown by <form.FormError error={mutation.error} />, not thrown further
+        form.handleSubmit().catch(() => undefined)
       }}
     >
       {children}

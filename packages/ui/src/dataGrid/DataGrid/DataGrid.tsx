@@ -10,6 +10,7 @@ import {
   ValidationModule,
 } from 'ag-grid-community'
 import { AgGridReact } from 'ag-grid-react'
+import { useMemo } from 'react'
 
 import { cn } from '../../lib/cn/cn.ts'
 
@@ -60,9 +61,11 @@ export interface DataGridProps<TData> {
 /**
  * Heavy grid on AG Grid Community (MIT): column filters, resize, reorder, CSV export
  * and lazy loading by blocks (Infinite Row Model). Use `DataTable` for regular lists.
+ * Pass a stable `fetchRows` (module-level function), otherwise the grid reloads on every render.
  */
 export function DataGrid<TData>({ columns, fetchRows, getRowId, onRowClick, pageSize = 50, className }: DataGridProps<TData>) {
-  const datasource: IDatasource = {
+  // A new datasource reloads the grid, so it changes only together with `fetchRows`
+  const datasource = useMemo<IDatasource>(() => ({
     getRows: (params) => {
       fetchRows({
         offset: params.startRow,
@@ -74,7 +77,7 @@ export function DataGrid<TData>({ columns, fetchRows, getRowId, onRowClick, page
         () => { params.failCallback() },
       )
     },
-  }
+  }), [fetchRows])
 
   return (
     <div className={cn('h-(--data-table-max-height) w-full', className)}>
