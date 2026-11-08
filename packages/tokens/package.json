@@ -1,0 +1,20 @@
+{
+  "name": "@repo/tokens",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./theme.css": "./dist/theme.css"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "check": "node scripts/build.ts --check",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "style-dictionary": "^5.8.0",
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "^24.0.0",
+    "typescript": "~6.0.3"
+  }
+}

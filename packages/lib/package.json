@@ -1,0 +1,23 @@
+{
+  "name": "@repo/lib",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "date-fns": "^4.4.0",
+    "es-toolkit": "^1.53.2"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

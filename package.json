@@ -1,0 +1,32 @@
+{
+  "name": "fsd-starter",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=web",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint . --max-warnings=0 && pnpm --filter web lint:fsd && pnpm lint:deps && pnpm lint:dup",
+    "lint:fix": "eslint . --fix",
+    "lint:deps": "depcruise apps packages --config .dependency-cruiser.cjs",
+    "lint:dup": "jscpd",
+    "test": "turbo run test",
+    "tokens": "pnpm --filter @repo/tokens build",
+    "storybook": "pnpm --filter @repo/ui storybook",
+    "check": "pnpm tokens:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "tokens:check": "pnpm --filter @repo/tokens check"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "dependency-cruiser": "^18.7.2",
+    "eslint": "^10.14.0",
+    "jscpd": "^5.4.3",
+    "turbo": "^2.11.10",
+    "typescript": "~6.0.3",
+    "tailwindcss": "^4.3.5"
+  }
+}

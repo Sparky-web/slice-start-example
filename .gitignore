@@ -1,0 +1,18 @@
+node_modules
+dist
+.output
+.nitro
+.tanstack
+.turbo
+storybook-static
+coverage
+.env
+*.local
+.DS_Store
+**/screens/**/*-diff.png
+**/screens/**/*-actual.png
+.vitest
+**/shared/db/generated
+
+# Generated from Figma tokens and checked in CI
+!packages/tokens/dist

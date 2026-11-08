@@ -1,0 +1,71 @@
+{
+  "color": {
+    "$type": "color",
+    "background": {
+      "$value": "{color.zinc.950}"
+    },
+    "foreground": {
+      "$value": "{color.zinc.50}"
+    },
+    "card": {
+      "$value": "{color.zinc.900}"
+    },
+    "card-foreground": {
+      "$value": "{color.zinc.50}"
+    },
+    "popover": {
+      "$value": "{color.zinc.900}"
+    },
+    "popover-foreground": {
+      "$value": "{color.zinc.50}"
+    },
+    "primary": {
+      "$value": "{color.zinc.200}"
+    },
+    "primary-foreground": {
+      "$value": "{color.zinc.900}"
+    },
+    "secondary": {
+      "$value": "{color.zinc.800}"
+    },
+    "secondary-foreground": {
+      "$value": "{color.zinc.50}"
+    },
+    "muted": {
+      "$value": "{color.zinc.800}"
+    },
+    "muted-foreground": {
+      "$value": "{color.zinc.400}"
+    },
+    "accent": {
+      "$value": "{color.zinc.800}"
+    },
+    "accent-foreground": {
+      "$value": "{color.zinc.50}"
+    },
+    "destructive": {
+      "$value": "{color.red.400}"
+    },
+    "destructive-foreground": {
+      "$value": "{color.zinc.950}"
+    },
+    "success": {
+      "$value": "{color.green.400}"
+    },
+    "warning": {
+      "$value": "{color.amber.400}"
+    },
+    "info": {
+      "$value": "{color.blue.400}"
+    },
+    "border": {
+      "$value": "{color.zinc.800}"
+    },
+    "input": {
+      "$value": "{color.zinc.700}"
+    },
+    "ring": {
+      "$value": "{color.zinc.500}"
+    }
+  }
+}

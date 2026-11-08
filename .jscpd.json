@@ -1,0 +1,8 @@
+{
+  "threshold": 2,
+  "minTokens": 60,
+  "reporters": ["console"],
+  "path": ["apps", "packages"],
+  "ignore": ["**/node_modules/**", "**/dist/**", "**/*.gen.ts", "**/generated/**", "**/*.story.tsx", "**/*.test.ts", "**/*.test.tsx", "**/*.tokens.json", "**/.output/**"],
+  "gitignore": true
+}
