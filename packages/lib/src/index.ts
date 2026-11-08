@@ -1,3 +1,5 @@
+export type { ActionError, ActionResult } from './actionResult/actionResult.ts'
+export { fail, ok } from './actionResult/actionResult.ts'
 export { deviceTimeZone } from './deviceTimeZone/deviceTimeZone.ts'
 export { ensureTemporal } from './ensureTemporal/ensureTemporal.ts'
 export type { DateFormat, FormatDateOptions } from './formatDate/formatDate.ts'

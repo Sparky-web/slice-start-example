@@ -9,7 +9,10 @@ export function pluralize(count: number, [one, few, many]: readonly [one: string
     case 'few': {
       return few
     }
-    default: {
+    case 'two':
+    case 'zero':
+    case 'many':
+    case 'other': {
       return many
     }
   }

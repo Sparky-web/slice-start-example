@@ -1,3 +1,5 @@
-export { useFieldContext, useFormContext } from './formContext.ts'
+export { changeField, useFieldContext, useFormContext } from './formContext.ts'
 export { useAppForm, withForm } from './formHook.ts'
+export type { SubmitActionConfig, SubmitErrors } from './useSubmitAction.ts'
+export { NETWORK_ERROR, UNKNOWN_ERROR, useSubmitAction } from './useSubmitAction.ts'
 export { revalidateLogic } from '@tanstack/react-form'

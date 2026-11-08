@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Field } from '../../components/Field/Field.tsx'
 import { Textarea } from '../../components/Textarea/Textarea.tsx'
-import { fieldErrors, useFieldContext } from '../formContext.ts'
+import { changeField, fieldErrors, useFieldContext } from '../formContext.ts'
 
 /** Настройки многострочного поля формы. */
 export interface TextareaFieldProps {
@@ -32,7 +32,7 @@ export function TextareaField({ label, description, placeholder, rows, required 
       <Textarea
         value={field.state.value}
         onValueChange={(value) => {
-          field.handleChange(value)
+          changeField(field, value)
         }}
         onBlur={field.handleBlur}
         {...(placeholder === undefined ? {} : { placeholder })}

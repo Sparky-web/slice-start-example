@@ -61,6 +61,7 @@ function toCss(token: Token): string {
     case 'fontFamily': {
       return fontFamilySchema.parse(value).map((name) => (name.includes(' ') ? `"${name}"` : name)).join(', ')
     }
+    case undefined:
     default: {
       return String(value)
     }
@@ -95,6 +96,7 @@ function themeVariable(path: string[]): string | undefined {
     case 'text': {
       return part === 'line-height' ? `--text-${name}--line-height` : `--text-${name}`
     }
+    case undefined:
     default: {
       return undefined
     }
