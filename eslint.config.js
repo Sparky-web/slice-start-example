@@ -21,7 +21,7 @@ export default [
   ...fsd({ files: ['apps/web/src/**/*.{ts,tsx}'], root: 'apps/web/src', tsconfig: 'apps/web/tsconfig.json' }),
 
   {
-    files: ['**/scripts/**', '**/*.config.{ts,js}'],
+    files: ['**/scripts/**', '**/prisma/**', '**/*.config.{ts,js}'],
     rules: { 'no-console': 'off' },
   },
   {
