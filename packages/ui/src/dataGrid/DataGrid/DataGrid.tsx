@@ -3,6 +3,7 @@ import type { ColDef, IDatasource, SortModelItem } from 'ag-grid-community'
 import {
   CsvExportModule,
   InfiniteRowModelModule,
+  LocaleModule,
   ModuleRegistry,
   NumberFilterModule,
   TextFilterModule,
@@ -16,6 +17,7 @@ import { cn } from '../../lib/cn/cn.ts'
 
 ModuleRegistry.registerModules([
   InfiniteRowModelModule,
+  LocaleModule,
   TextFilterModule,
   NumberFilterModule,
   CsvExportModule,

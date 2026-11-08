@@ -111,7 +111,8 @@ export function DataTable<TData extends RowData, TQueryKey extends QueryKey = Qu
     onChange: (instance) => {
       const last = instance.getVirtualItems().at(-1)
       if (last && last.index >= rows.length - LOAD_MORE_THRESHOLD && result.hasNextPage && !result.isFetchingNextPage) {
-        void result.fetchNextPage()
+        // Without cancelRefetch: false every scroll event would restart the same request
+        void result.fetchNextPage({ cancelRefetch: false })
       }
     },
   })
@@ -136,7 +137,8 @@ export function DataTable<TData extends RowData, TQueryKey extends QueryKey = Qu
           {result.error.message}
         </Alert>
       ) : (
-        <div ref={scrollRef} className="max-h-(--data-table-max-height) overflow-auto rounded-lg border bg-card">
+        // A new query (filters, sorting) starts from the top: remount resets the scroll position
+        <div key={JSON.stringify(query.queryKey)} ref={scrollRef} className="max-h-(--data-table-max-height) overflow-auto rounded-lg border bg-card">
           <table className="grid w-full text-sm">
             <thead className="sticky top-0 z-10 grid border-b bg-muted">
               {table.getHeaderGroups().map((group) => (
