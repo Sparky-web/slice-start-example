@@ -5,4 +5,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [typoPlugin(), react(), tailwindcss()],
+  // The polyfill is imported dynamically, so the dependency scan does not see it
+  optimizeDeps: { include: ['temporal-polyfill/global'] },
 })
