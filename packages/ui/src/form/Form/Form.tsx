@@ -3,14 +3,17 @@ import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn/cn.ts'
 import { useFormContext } from '../formContext.ts'
 
+/** Настройки формы. */
 export interface FormProps {
+  /** Поля, ошибки и кнопка отправки. */
   children: ReactNode
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
 /**
- * `<form>` wired to the current form: prevents reload and calls `handleSubmit`,
- * so `onSubmit: ({ value }) => mutation.mutateAsync(value)` needs no try/catch.
+ * Форма отправляет данные без перезагрузки страницы.
+ * Ошибка сервера не ломает страницу: форма показывает ошибку в отдельном сообщении.
  */
 export function Form({ children, className }: FormProps) {
   const form = useFormContext()
@@ -21,7 +24,7 @@ export function Form({ children, className }: FormProps) {
       onSubmit={(event) => {
         event.preventDefault()
         event.stopPropagation()
-        // Submit errors are shown by <form.FormError error={mutation.error} />, not thrown further
+        // Сообщение об ошибке сервера показывает отдельный блок ошибки формы
         form.handleSubmit().catch(() => undefined)
       }}
     >

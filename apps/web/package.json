@@ -8,7 +8,7 @@
     "build": "vite build",
     "start": "srvx --prod -s ../client dist/server/server.js",
     "typecheck": "tsc",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "lint:fsd": "steiger ./src",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

@@ -3,9 +3,10 @@ import { useRender } from '@base-ui/react/use-render'
 
 import { cn } from '../../lib/cn/cn.ts'
 
-export type TextLinkProps = useRender.ComponentProps<'a'>
+/** Настройки ссылки в тексте. */
+export interface TextLinkProps extends useRender.ComponentProps<'a'> {}
 
-/** Inline text link. Pass the router link via `render`: `<TextLink render={<Link to="/" />}>…</TextLink>` */
+/** Ссылка внутри текста. Ссылку роутера передайте в свойство отрисовки. */
 export function TextLink({ render, className, ...props }: TextLinkProps) {
   return useRender({
     defaultTagName: 'a',

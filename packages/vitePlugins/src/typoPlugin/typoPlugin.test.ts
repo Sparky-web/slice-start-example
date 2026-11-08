@@ -1,14 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { typoPlugin } from './typoPlugin.ts'
+import { transformTypo } from './typoPlugin.ts'
 
 const nbsp = ' '
 
-function transform(code: string): string {
-  const plugin = typoPlugin()
-  const hook = plugin.transform as (code: string, id: string) => { code: string } | null
-  return hook(code, '/project/src/pages/Home.tsx')?.code ?? code
-}
+const transform = (code: string): string => transformTypo(code, '/project/src/pages/Home.tsx')?.code ?? code
 
 describe('typoPlugin', () => {
   it('typographs JSX text', () => {
@@ -30,7 +26,7 @@ describe('typoPlugin', () => {
     )
   })
 
-  it('skips files without cyrillic text', () => {
+  it('keeps latin text', () => {
     expect(transform('const a = <p>Hello in world</p>')).toBe('const a = <p>Hello in world</p>')
   })
 })

@@ -4,11 +4,13 @@ import type { ButtonProps } from '../../components/Button/Button.tsx'
 import { Button } from '../../components/Button/Button.tsx'
 import { useFormContext } from '../formContext.ts'
 
+/** Настройки кнопки отправки. */
 export interface SubmitButtonProps extends Pick<ButtonProps, 'variant' | 'size' | 'fullWidth'> {
+  /** Действие, например «Сохранить». */
   children: ReactNode
 }
 
-/** Submit button that shows a spinner while the form is submitting. */
+/** Кнопка отправки формы. Во время отправки кнопка показывает индикатор и не принимает повторные нажатия. */
 export function SubmitButton({ children, ...props }: SubmitButtonProps) {
   const form = useFormContext()
   return (

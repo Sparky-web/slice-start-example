@@ -11,11 +11,21 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 import StyleDictionary from 'style-dictionary'
+import { z } from 'zod'
 
-interface Dimension { value: number; unit: string }
-interface Color { colorSpace: string; components: number[]; alpha?: number }
-interface Shadow { color: Color; offsetX: Dimension; offsetY: Dimension; blur: Dimension; spread: Dimension }
-interface Token { path: string[]; $type?: string; $value: unknown }
+// Schemas validate the Figma export: a broken token fails the build with a clear message
+const dimensionSchema = z.object({ value: z.number(), unit: z.string() })
+const colorSchema = z.object({ colorSpace: z.string(), components: z.array(z.number()), alpha: z.number().optional() })
+const shadowSchema = z.array(
+  z.object({ color: colorSchema, offsetX: dimensionSchema, offsetY: dimensionSchema, blur: dimensionSchema, spread: dimensionSchema }),
+)
+const fontFamilySchema = z.array(z.string())
+const tokenSchema = z.object({ path: z.array(z.string()), $type: z.string().optional(), $value: z.unknown() })
+
+type Dimension = z.infer<typeof dimensionSchema>
+type Color = z.infer<typeof colorSchema>
+type Shadow = z.infer<typeof shadowSchema>
+type Token = z.infer<typeof tokenSchema>
 
 const root = join(import.meta.dirname, '..')
 const srcDir = join(root, 'src')
@@ -31,7 +41,7 @@ const color = ({ colorSpace, components, alpha }: Color) => {
   return alpha === undefined ? `${space}(${values})` : `${space}(${values} / ${String(alpha)})`
 }
 
-const shadow = (layers: Shadow[]) =>
+const shadow = (layers: Shadow) =>
   layers
     .map((layer) => [layer.offsetX, layer.offsetY, layer.blur, layer.spread].map(dimension).join(' ') + ` ${color(layer.color)}`)
     .join(', ')
@@ -40,16 +50,16 @@ function toCss(token: Token): string {
   const value = token.$value
   switch (token.$type) {
     case 'color': {
-      return color(value as Color)
+      return color(colorSchema.parse(value))
     }
     case 'dimension': {
-      return dimension(value as Dimension)
+      return dimension(dimensionSchema.parse(value))
     }
     case 'shadow': {
-      return shadow(value as Shadow[])
+      return shadow(shadowSchema.parse(value))
     }
     case 'fontFamily': {
-      return (value as string[]).map((name) => (name.includes(' ') ? `"${name}"` : name)).join(', ')
+      return fontFamilySchema.parse(value).map((name) => (name.includes(' ') ? `"${name}"` : name)).join(', ')
     }
     default: {
       return String(value)
@@ -65,7 +75,7 @@ async function resolve(files: string[]): Promise<Token[]> {
     platforms: { css: {} },
   })
   const dictionary = await sd.getPlatformTokens('css')
-  return dictionary.allTokens as Token[]
+  return z.array(tokenSchema).parse(dictionary.allTokens)
 }
 
 /** Maps a token path to the Tailwind v4 theme variable name. */

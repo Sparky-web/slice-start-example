@@ -10,7 +10,7 @@ const twMerge = extendTailwindMerge({
   },
 })
 
-/** Joins class names and resolves Tailwind conflicts (the last class wins). */
+/** Склеивает классы оформления. При конфликте побеждает последний класс. */
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }

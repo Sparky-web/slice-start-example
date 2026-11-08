@@ -1,12 +1,14 @@
 import { Alert } from '../../components/Alert/Alert.tsx'
 
+/** Настройки ошибки формы. */
 export interface FormErrorProps {
-  /** Usually `mutation.error`. Nothing is rendered when empty. */
+  /** Ошибка последней отправки. Без ошибки блок не виден. */
   error: unknown
+  /** Главная мысль ошибки. */
   title?: string
 }
 
-/** Form-level error, e.g. a failed server request. */
+/** Ошибка всей формы, например отказ сервера. Пользователь видит причину и может повторить отправку. */
 export function FormError({ error, title = 'Не удалось сохранить' }: FormErrorProps) {
   if (error === null || error === undefined) return null
   const message = error instanceof Error ? error.message : 'Попробуйте ещё раз'

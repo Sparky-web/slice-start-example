@@ -1,4 +1,4 @@
-import { app, base, fsd, ignores, naming, react, tailwind } from '@repo/eslint-config'
+import { app, base, dates, docs, fsd, ignores, naming, react, tailwind } from '@repo/eslint-config'
 
 export default [
   ...ignores,
@@ -15,6 +15,15 @@ export default [
   // Design tokens only. The design system may use CSS variables for library internals.
   ...tailwind({ files: ['packages/ui/src/**/*.tsx'], entryPoint: 'packages/ui/src/styles/globals.css', strict: false }),
   ...tailwind({ files: ['apps/web/src/**/*.tsx'], entryPoint: 'apps/web/src/app/styles/app.css' }),
+
+  // Russian JSDoc with the product meaning for everything exported, props described by interfaces
+  ...docs({
+    files: ['packages/{ui,lib,vitePlugins}/src/**/*.{ts,tsx}', 'apps/*/src/**/*.{ts,tsx}'],
+    ignores: ['**/*.story.tsx', '**/*.test.{ts,tsx}', 'apps/*/src/app/routeTree.gen.ts'],
+  }),
+
+  // Dates are Temporal only (the app block below adds the same restriction for application code)
+  ...dates({ files: ['packages/{ui,lib,vitePlugins}/src/**/*.{ts,tsx}'] }),
 
   // Application code is assembled from @repo/ui and follows FSD layers
   ...app({ files: ['apps/*/src/**/*.{ts,tsx}'] }),

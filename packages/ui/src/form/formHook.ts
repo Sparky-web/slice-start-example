@@ -1,4 +1,4 @@
-import { createFormHook, createFormHookContexts } from '@tanstack/react-form'
+import { createFormHook } from '@tanstack/react-form'
 
 import { CheckboxField } from './CheckboxField/CheckboxField.tsx'
 import { Form } from './Form/Form.tsx'
@@ -10,8 +10,9 @@ import { TextareaField } from './TextareaField/TextareaField.tsx'
 import { TextField } from './TextField/TextField.tsx'
 
 /**
- * The only form hook in the app. Fields from the design system are registered once,
- * modules use them as `<form.AppField name="title">{(field) => <field.TextField label="…" />}</form.AppField>`.
+ * Единственный способ собрать форму в приложении.
+ * Поля дизайн-системы подключены заранее: модуль описывает только значения, проверки и отправку.
+ * Отдельный помощник выносит повторяющуюся группу полей в отдельный блок.
  */
 export const { useAppForm, withForm } = createFormHook({
   fieldContext,
@@ -19,5 +20,3 @@ export const { useAppForm, withForm } = createFormHook({
   fieldComponents: { TextField, TextareaField, SelectField, CheckboxField },
   formComponents: { Form, SubmitButton, FormError },
 })
-
-export { createFormHookContexts }

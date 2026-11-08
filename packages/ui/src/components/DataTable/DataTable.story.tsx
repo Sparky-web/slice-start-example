@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { infiniteQueryOptions } from '@tanstack/react-query'
 import { useState } from 'react'
 
+import type { ListPage } from '../../list/listQuery.ts'
+import { listQueryOptions } from '../../list/listQuery.ts'
 import { Badge } from '../Badge/Badge.tsx'
-import type { DataPage, SortingState } from './DataTable.tsx'
+import type { SortingState } from './DataTable.tsx'
 import { createDataTableColumns, DataTable } from './DataTable.tsx'
 
 interface Row {
@@ -30,31 +31,23 @@ const columns = column.columns([
   column.accessor('points', { header: 'Оценка', size: 100 }),
 ])
 
-const PAGE_SIZE = 50
+const compare = (a: Row, b: Row, field: string) => {
+  if (field === 'points') return a.points - b.points
+  if (field === 'status') return a.status.localeCompare(b.status)
+  return a.title.localeCompare(b.title)
+}
 
-function fetchPage(cursor: string | null, sorting: SortingState): Promise<DataPage<Row>> {
+function fetchPage(offset: number, limit: number, sorting: SortingState): Promise<ListPage<Row>> {
   const [sort] = sorting
-  const sorted = sort
-    ? all.toSorted((a, b) => {
-        const key = sort.id as keyof Row
-        return (a[key] > b[key] ? 1 : -1) * (sort.desc ? -1 : 1)
-      })
-    : all
-  const start = Number(cursor ?? 0)
-  return Promise.resolve({
-    items: sorted.slice(start, start + PAGE_SIZE),
-    nextCursor: start + PAGE_SIZE < sorted.length ? String(start + PAGE_SIZE) : null,
-    total: sorted.length,
-  })
+  const sorted = sort ? all.toSorted((a, b) => compare(a, b, sort.id) * (sort.desc ? -1 : 1)) : all
+  return Promise.resolve({ items: sorted.slice(offset, offset + limit), total: sorted.length })
 }
 
 function Demo() {
   const [sorting, setSorting] = useState<SortingState>([])
-  const query = infiniteQueryOptions({
+  const query = listQueryOptions({
     queryKey: ['story-rows', sorting],
-    queryFn: ({ pageParam }) => fetchPage(pageParam, sorting),
-    initialPageParam: null as string | null,
-    getNextPageParam: (page) => page.nextCursor,
+    fetchPage: ({ offset, limit }) => fetchPage(offset, limit, sorting),
   })
   return <DataTable columns={columns} query={query} getRowId={(row) => row.id} sorting={sorting} onSortingChange={setSorting} />
 }

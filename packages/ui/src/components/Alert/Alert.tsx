@@ -19,12 +19,19 @@ const alertVariants = cva('flex gap-3 rounded-lg border p-4', {
 
 const icons = { info: Info, success: CircleCheck, destructive: CircleAlert } as const
 
-export interface AlertProps extends VariantProps<typeof alertVariants> {
+/** Настройки сообщения. */
+export interface AlertProps {
+  /** Смысл сообщения: сведения, успех или ошибка. */
+  tone?: VariantProps<typeof alertVariants>['tone']
+  /** Главная мысль сообщения. */
   title?: ReactNode
+  /** Подробности и следующий шаг для пользователя. */
   children?: ReactNode
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
+/** Сообщение на странице: итог действия, ошибка или важные сведения. Экранный диктор озвучивает сообщение сразу. */
 export function Alert({ tone, title, children, className }: AlertProps) {
   const Icon = icons[tone ?? 'info']
   return (
