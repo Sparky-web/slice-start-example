@@ -7,6 +7,8 @@ dist
 storybook-static
 coverage
 .env
+.env.*
+!.env.example
 *.local
 .DS_Store
 **/screens/**/*-diff.png

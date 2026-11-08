@@ -1,8 +1,16 @@
-# TaskFlow — пример приложения на FSD Starter
+# TaskFlow — пример приложения на Slice Start
 
-Минимальный трекер задач, на котором видны все возможности [базового шаблона](../fsd-starter): авторизация, формы, таблицы, сквозная типизация и FSD с бэкендом в слайсах.
+Минимальный трекер задач, на котором видны все возможности [Slice Start](https://github.com/Sparky-web/slice-start): авторизация, формы, таблицы, сквозная типизация и FSD с бэкендом в слайсах.
 
-Репозиторий создан клонированием шаблона. Обновления шаблона подтягиваются так:
+Репозиторий: [Sparky-web/slice-start-example](https://github.com/Sparky-web/slice-start-example). Лицензия — [MIT](LICENSE).
+
+Репозиторий сохраняет историю шаблона. Чтобы получить обновления, добавьте шаблон как `upstream` один раз:
+
+```bash
+git remote add upstream https://github.com/Sparky-web/slice-start.git
+```
+
+Затем получайте изменения:
 
 ```bash
 git pull upstream main
@@ -10,15 +18,31 @@ git pull upstream main
 
 ## Запуск
 
+Установите Node.js 24 или новее, pnpm 9.15.1 и PostgreSQL.
+
 ```bash
-pnpm install
-cp apps/web/.env.example apps/web/.env   # DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL
-pnpm --filter web db:push
-pnpm --filter web db:seed                # demo@taskflow.dev / demo12345
-pnpm dev                                 # http://localhost:3020
+git clone https://github.com/Sparky-web/slice-start-example.git
+cd slice-start-example
+cp apps/web/.env.example apps/web/.env
 ```
 
+Укажите `DATABASE_URL`, `BETTER_AUTH_SECRET` и `BETTER_AUTH_URL` в `.env`.
+Сгенерируйте секрет командой `openssl rand -hex 32` и запишите результат в `BETTER_AUTH_SECRET`.
+Создайте базу PostgreSQL. Для локального PostgreSQL выполните `createdb taskflow`.
+
+Создайте `.env` до установки зависимостей: Prisma читает `DATABASE_URL` при генерации клиента.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm --filter web db:push
+pnpm --filter web db:seed
+pnpm dev
+```
+
+Откройте `http://localhost:3020`. Демо-вход: `demo@taskflow.dev` / `demo12345`.
 `BETTER_AUTH_URL` должен совпадать с адресом, на котором открыто приложение.
+
+Перед первым запуском тестов установите браузер: `pnpm --filter @repo/ui exec playwright install chromium`.
 
 ## Что где показано
 

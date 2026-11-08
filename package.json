@@ -1,5 +1,11 @@
 {
-  "name": "taskflow-example",
+  "name": "slice-start-example",
+  "description": "TaskFlow example for Slice Start: authentication, forms, tables and FSD with server functions",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sparky-web/slice-start-example.git"
+  },
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.1",
