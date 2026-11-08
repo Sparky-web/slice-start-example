@@ -20,6 +20,7 @@ export interface SubmitErrors {
  * Группа полей подходит к любой форме, которая отправляет данные через действие.
  */
 export const submitSlot =
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters -- тип значений нужен, чтобы сигнатура совпала с действием формы
   <TValues>() =>
   (_props: { value: TValues }): Promise<SubmitErrors | undefined> =>
     Promise.resolve(undefined)
