@@ -6,11 +6,13 @@ import { authClient, unwrapAuth } from '~/shared/auth'
 import { signInSchema } from '../../model/authSchema.ts'
 import { useAuthRedirect } from '../../model/useAuthRedirect.ts'
 
+/** Настройки формы входа. */
 export interface SignInFormProps {
-  /** Where to go after a successful sign in. */
+  /** Страница, на которую пользователь вернётся после входа. */
   redirectTo?: string
 }
 
+/** Вход по почте и паролю. После входа пользователь возвращается на страницу, с которой пришёл. */
 export function SignInForm({ redirectTo = '/projects' }: SignInFormProps) {
   const redirect = useAuthRedirect()
   const signIn = useMutation({

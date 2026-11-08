@@ -33,6 +33,9 @@ pnpm dev                                 # http://localhost:3020
 | `DataTable`: бесконечная подгрузка, сортировка и фильтры в URL | `widgets/taskTable`, `entities/task/api` |
 | `DataGrid` (AG Grid Community): блочная подгрузка, серверная сортировка и фильтр | `widgets/projectGrid` |
 | Типографика | весь русский текст в JSX: неразрывные пробелы ставит `typoPlugin` при сборке |
+| Часовой пояс пользователя | `features/editProfile` (выбор в профиле), `shared/auth` (поле пользователя), `app/routes/__root.tsx` |
+| Temporal: срок задачи — календарная дата, создание — момент | `entities/task/model`, `shared/lib/dbDates` |
+| Общий контракт списков для таблицы и грида | `entities/task/api/taskApi.ts`, `entities/project/api/projectApi.ts` |
 
 ## Слайсы
 
@@ -52,4 +55,4 @@ shared/    auth (Better Auth), db (Prisma), config
 
 Каждый слайс экспортирует публичный API через `index.ts`. Серверный код лежит рядом с UI того же слайса, а клиентский бандл его не получает: тела `createServerFn` и `createServerOnlyFn` вырезаются при сборке, `*.server.ts` защищён import protection.
 
-Проверка перед коммитом: `pnpm check`.
+Проверка перед коммитом: `pnpm check`. Правила для людей и ИИ-агентов: [AGENTS.md](AGENTS.md).

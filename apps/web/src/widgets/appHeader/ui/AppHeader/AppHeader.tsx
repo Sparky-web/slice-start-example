@@ -5,7 +5,14 @@ import type { SessionUser } from '~/entities/user'
 import { UserAvatar } from '~/entities/user'
 import { SignOutButton } from '~/features/session'
 
-export function AppHeader({ user }: { user: SessionUser }) {
+/** Настройки шапки. */
+export interface AppHeaderProps {
+  /** Пользователь, который вошёл на сайт. */
+  user: SessionUser
+}
+
+/** Шапка закрытой части сайта: переходы к проектам и профилю, имя пользователя и выход. */
+export function AppHeader({ user }: AppHeaderProps) {
   return (
     <header className="border-b bg-card">
       <Container size="xl">

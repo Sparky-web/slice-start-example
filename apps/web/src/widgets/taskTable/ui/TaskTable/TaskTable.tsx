@@ -1,5 +1,4 @@
-import { formatDate } from '@repo/lib'
-import { createDataTableColumns, DataTable, Input, Select, Text } from '@repo/ui'
+import { createDataTableColumns, DataTable, DateTime, Input, Select, Text } from '@repo/ui'
 import { useState } from 'react'
 
 import type { TaskListItem, TaskListSearch, TaskStatus } from '~/entities/task'
@@ -27,21 +26,28 @@ const columns = column.columns([
     size: 120,
     cell: (info) => {
       const value = info.getValue()
-      return value ? formatDate(value, 'short') : '—'
+      return value ? <DateTime value={value} preset="short" /> : '—'
     },
   }),
-  column.accessor('createdAt', { header: 'Создана', size: 120, cell: (info) => formatDate(info.getValue(), 'short') }),
+  column.accessor('createdAt', { header: 'Создана', size: 120, cell: (info) => <DateTime value={info.getValue()} preset="short" /> }),
 ])
 
 const statusFilterOptions = [{ value: 'ALL' as const, label: 'Все статусы' }, ...taskStatusOptions]
 
+/** Настройки таблицы задач. */
 export interface TaskTableProps {
+  /** Проект, задачи которого показывает таблица. */
   projectId: string
-  /** Filters and sorting from the URL. */
+  /** Отбор и порядок задач из адреса страницы. */
   search: TaskListSearch
+  /** Пользователь изменил отбор или порядок. */
   onSearchChange: (search: TaskListSearch) => void
 }
 
+/**
+ * Задачи проекта с поиском, отбором по этапу и упорядочиванием.
+ * Нажатие на строку открывает задачу для правки.
+ */
 export function TaskTable({ projectId, search, onSearchChange }: TaskTableProps) {
   const [editing, setEditing] = useState<TaskListItem | null>(null)
 

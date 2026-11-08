@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { SignUpForm } from '~/features/session'
 
+/** Страница регистрации. Пользователь с аккаунтом переходит отсюда ко входу. */
 export function SignUpPage() {
   return (
     <Container size="sm" padded>

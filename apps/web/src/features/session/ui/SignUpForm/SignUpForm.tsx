@@ -6,6 +6,7 @@ import { authClient, unwrapAuth } from '~/shared/auth'
 import { signUpSchema } from '../../model/authSchema.ts'
 import { useAuthRedirect } from '../../model/useAuthRedirect.ts'
 
+/** Регистрация по почте и паролю. После регистрации пользователь сразу попадает к своим проектам. */
 export function SignUpForm() {
   const redirect = useAuthRedirect()
   const signUp = useMutation({

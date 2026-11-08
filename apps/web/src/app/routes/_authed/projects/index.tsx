@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { ProjectsPage } from '~/pages/projects'
 
+/** Список проектов пользователя. */
 export const Route = createFileRoute('/_authed/projects/')({
   head: () => ({ meta: [{ title: 'Проекты — TaskFlow' }] }),
   component: ProjectsPage,

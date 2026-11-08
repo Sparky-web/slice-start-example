@@ -1,2 +1,2 @@
-/** Page size for infinite tables: big enough for a screen, small enough for a fast query. */
+/** Сколько строк таблица подгружает за раз. */
 export const PAGE_SIZE = 50

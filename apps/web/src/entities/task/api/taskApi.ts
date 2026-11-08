@@ -1,51 +1,63 @@
-import type { DataPage } from '@repo/ui'
+import type { ListPage } from '@repo/ui'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { authMiddleware } from '~/shared/auth'
-import { PAGE_SIZE } from '~/shared/config'
 import { prisma } from '~/shared/db'
+import { fromDbDate, fromDbInstant, listRequestSchema, pageArgs, toDbDate } from '~/shared/lib'
 
-import type { TaskListItem } from '../model/taskSchema.ts'
-import { taskListSearchSchema } from '../model/taskSchema.ts'
+import type { TaskInput, TaskListItem } from '../model/taskSchema.ts'
+import { taskFiltersSchema, taskSortFields } from '../model/taskSchema.ts'
 
-const listTasksInput = taskListSearchSchema.extend({
-  projectId: z.string(),
-  cursor: z.string().nullable(),
+/** Строка задачи из базы в виде для таблицы и форм. */
+interface TaskRow {
+  id: string
+  title: string
+  description: string
+  status: TaskListItem['status']
+  priority: TaskListItem['priority']
+  dueDate: Date | null
+  createdAt: Date
+}
+
+/** Задача из базы в виде для таблицы и форм. */
+export const toTaskItem = (task: TaskRow): TaskListItem => ({
+  id: task.id,
+  title: task.title,
+  description: task.description,
+  status: task.status,
+  priority: task.priority,
+  dueDate: task.dueDate ? fromDbDate(task.dueDate) : null,
+  createdAt: fromDbInstant(task.createdAt),
 })
 
-/** A page of tasks of one project: offset cursor, filters and sorting run in the database. */
+/** Значения формы задачи для записи в базу. */
+export const toTaskRecord = (input: TaskInput) => ({
+  title: input.title,
+  description: input.description,
+  status: input.status,
+  priority: input.priority,
+  dueDate: input.dueDate ? toDbDate(input.dueDate) : null,
+})
+
+/**
+ * Задачи проекта порциями для таблицы.
+ * Пользователь видит только задачи своих проектов.
+ * Отбор и порядок выполняет база, поэтому список работает быстро на тысячах задач.
+ */
 export const listTasks = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .validator(listTasksInput)
-  .handler(async ({ data, context }): Promise<DataPage<TaskListItem>> => {
-    const offset = Number(data.cursor ?? 0)
+  .validator(listRequestSchema(taskFiltersSchema).extend({ projectId: z.string() }))
+  .handler(async ({ data, context }): Promise<ListPage<TaskListItem>> => {
     const where = {
       projectId: data.projectId,
       project: { ownerId: context.user.id },
-      ...(data.status ? { status: data.status } : {}),
-      ...(data.q ? { title: { contains: data.q, mode: 'insensitive' as const } } : {}),
+      ...(data.filters.status ? { status: data.filters.status } : {}),
+      ...(data.filters.q ? { title: { contains: data.filters.q, mode: 'insensitive' as const } } : {}),
     }
-    const [tasks, total] = await prisma.$transaction([
-      prisma.task.findMany({
-        where,
-        orderBy: [{ [data.sort ?? 'createdAt']: data.desc === false ? 'asc' : 'desc' }, { id: 'asc' }],
-        skip: offset,
-        take: PAGE_SIZE,
-      }),
+    const [rows, total] = await prisma.$transaction([
+      prisma.task.findMany({ where, ...pageArgs(data, taskSortFields, 'createdAt') }),
       prisma.task.count({ where }),
     ])
-    return {
-      items: tasks.map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
-        dueDate: task.dueDate?.toISOString() ?? null,
-        createdAt: task.createdAt.toISOString(),
-      })),
-      nextCursor: offset + PAGE_SIZE < total ? String(offset + PAGE_SIZE) : null,
-      total,
-    }
+    return { items: rows.map(toTaskItem), total }
   })

@@ -4,6 +4,7 @@ import { projectQueries } from '~/entities/project'
 import { taskListSearchSchema, taskQueries } from '~/entities/task'
 import { ProjectPage } from '~/pages/project'
 
+/** Проект и его задачи. Сервер загружает первую порцию задач до показа страницы. */
 export const Route = createFileRoute('/_authed/projects/$projectId')({
   validateSearch: taskListSearchSchema,
   loaderDeps: ({ search }) => ({ search }),

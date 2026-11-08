@@ -9,6 +9,7 @@ import { projectInputSchema } from '~/entities/project'
 
 import { createProject } from '../../api/createProject.ts'
 
+/** Создание проекта в диалоге. После создания пользователь сразу попадает в новый проект. */
 export function CreateProjectDialog() {
   const navigate = useNavigate()
   const create = useMutation({

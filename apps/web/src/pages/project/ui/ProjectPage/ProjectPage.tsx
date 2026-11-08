@@ -8,6 +8,7 @@ import { TaskTable } from '~/widgets/taskTable'
 
 const route = getRouteApi('/_authed/projects/$projectId')
 
+/** Страница проекта: сводка и таблица задач. Отбор и порядок задач хранятся в адресе страницы. */
 export function ProjectPage() {
   const { projectId } = route.useParams()
   const search = route.useSearch()

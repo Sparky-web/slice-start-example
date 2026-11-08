@@ -9,6 +9,7 @@ const features = [
   { title: 'Формы', description: 'Создание и редактирование на TanStack Form с полями из дизайн-системы' },
 ] as const
 
+/** Главная страница: что умеет сервис и как начать работу. */
 export function HomePage() {
   const { user } = rootRoute.useRouteContext()
 

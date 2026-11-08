@@ -10,7 +10,14 @@ import { emptyTaskInput, TaskFields, taskInputSchema, taskQueries } from '~/enti
 
 import { createTask } from '../../api/createTask.ts'
 
-export function CreateTaskDialog({ projectId }: { projectId: string }) {
+/** Настройки диалога новой задачи. */
+export interface CreateTaskDialogProps {
+  /** Проект, в который пользователь добавляет задачу. */
+  projectId: string
+}
+
+/** Создание задачи в диалоге. Новая задача сразу появляется в таблице проекта. */
+export function CreateTaskDialog({ projectId }: CreateTaskDialogProps) {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
   const create = useMutation({

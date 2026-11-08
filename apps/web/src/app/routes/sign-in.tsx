@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { SignInPage } from '~/pages/signIn'
 
+/** Вход. Пользователь с активным входом сразу попадает к проектам. */
 export const Route = createFileRoute('/sign-in')({
   validateSearch: z.object({
     // Only same-origin paths, never an absolute URL

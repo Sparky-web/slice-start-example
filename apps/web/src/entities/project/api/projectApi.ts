@@ -1,13 +1,14 @@
+import type { ListPage } from '@repo/ui'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { authMiddleware } from '~/shared/auth'
-import type { Prisma } from '~/shared/db'
 import { prisma } from '~/shared/db'
+import { fromDbInstant, listRequestSchema, pageArgs } from '~/shared/lib'
 
 import type { ProjectListItem } from '../model/projectSchema.ts'
-import { projectListInputSchema } from '../model/projectSchema.ts'
+import { projectFiltersSchema, projectSortFields } from '../model/projectSchema.ts'
 
 async function countDone(projectIds: string[]): Promise<Map<string, number>> {
   const groups = await prisma.task.groupBy({
@@ -18,41 +19,39 @@ async function countDone(projectIds: string[]): Promise<Map<string, number>> {
   return new Map(groups.map((group) => [group.projectId, group._count._all]))
 }
 
-/** A block of the current user's projects for the projects grid. */
+/**
+ * Проекты пользователя порциями для грида.
+ * Пользователь видит только свои проекты и ищет их по названию.
+ */
 export const listProjects = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .validator(projectListInputSchema)
-  .handler(async ({ data, context }): Promise<{ items: ProjectListItem[]; total: number }> => {
+  .validator(listRequestSchema(projectFiltersSchema))
+  .handler(async ({ data, context }): Promise<ListPage<ProjectListItem>> => {
     const where = {
       ownerId: context.user.id,
-      ...(data.search ? { name: { contains: data.search, mode: 'insensitive' as const } } : {}),
+      ...(data.filters.name ? { name: { contains: data.filters.name, mode: 'insensitive' as const } } : {}),
     }
-    const direction: Prisma.SortOrder = data.desc ? 'desc' : 'asc'
-    const orderBy: Prisma.ProjectOrderByWithRelationInput =
-      data.sort === 'taskCount' ? { tasks: { _count: direction } } : { [data.sort]: direction }
-    const [projects, total] = await prisma.$transaction([
+    const [rows, total] = await prisma.$transaction([
       prisma.project.findMany({
         where,
-        orderBy: [orderBy, { id: 'asc' }],
-        skip: data.offset,
-        take: data.limit,
+        ...pageArgs(data, projectSortFields, 'createdAt'),
         include: { _count: { select: { tasks: true } } },
       }),
       prisma.project.count({ where }),
     ])
-    const done = await countDone(projects.map((project) => project.id))
-    const items = projects.map((project) => ({
+    const done = await countDone(rows.map((project) => project.id))
+    const items = rows.map((project) => ({
       id: project.id,
       name: project.name,
       description: project.description,
       taskCount: project._count.tasks,
       doneCount: done.get(project.id) ?? 0,
-      createdAt: project.createdAt.toISOString(),
+      createdAt: fromDbInstant(project.createdAt),
     }))
     return { items, total }
   })
 
-/** One project of the current user with task counters. Throws `notFound` for foreign ids. */
+/** Проект пользователя со счётчиками задач. Чужой проект выглядит как несуществующий. */
 export const getProject = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .validator(z.object({ id: z.string() }))
@@ -69,6 +68,6 @@ export const getProject = createServerFn({ method: 'GET' })
       description: project.description,
       taskCount: project._count.tasks,
       doneCount: done.get(project.id) ?? 0,
-      createdAt: project.createdAt.toISOString(),
+      createdAt: fromDbInstant(project.createdAt),
     }
   })

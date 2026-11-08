@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { handleAuthRequest } from '~/shared/auth'
 
+/** Адреса входа, регистрации и выхода. */
 export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {

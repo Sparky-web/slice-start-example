@@ -5,6 +5,7 @@ import { EditProfileForm } from '~/features/editProfile'
 
 const route = getRouteApi('/_authed/profile')
 
+/** Профиль: имя и часовой пояс пользователя. */
 export function ProfilePage() {
   const { user } = route.useRouteContext()
   return (

@@ -1,15 +1,18 @@
-import { formatDate, formatNumber, pluralize } from '@repo/lib'
-import { Badge, Heading, Stack, Text } from '@repo/ui'
+import { formatNumber, pluralize } from '@repo/lib'
+import { Badge, DateTime, Heading, Stack, Text } from '@repo/ui'
 import type { ReactNode } from 'react'
 
 import type { ProjectListItem } from '../../model/projectSchema.ts'
 
+/** Настройки шапки проекта. */
 export interface ProjectSummaryProps {
+  /** Проект со счётчиками задач. */
   project: ProjectListItem
-  /** Project-level actions, e.g. "create task". */
+  /** Действия над проектом. */
   actions?: ReactNode
 }
 
+/** Шапка проекта: название, цель, число задач и доля готовых задач. */
 export function ProjectSummary({ project, actions }: ProjectSummaryProps) {
   const progress = project.taskCount === 0 ? 0 : Math.round((project.doneCount / project.taskCount) * 100)
   return (
@@ -23,11 +26,15 @@ export function ProjectSummary({ project, actions }: ProjectSummaryProps) {
           </Badge>
           <Badge tone={progress === 100 ? 'success' : 'info'}>Выполнено {progress}%</Badge>
           <Text size="sm" tone="muted">
-            Создан {formatDate(project.createdAt)}
+            Создан <DateTime value={project.createdAt} />
           </Text>
         </Stack>
       </Stack>
-      {actions !== undefined && <Stack direction="row" gap={2} align="start">{actions}</Stack>}
+      {actions !== undefined && (
+        <Stack direction="row" gap={2} align="start">
+          {actions}
+        </Stack>
+      )}
     </Stack>
   )
 }

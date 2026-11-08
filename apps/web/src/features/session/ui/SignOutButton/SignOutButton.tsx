@@ -6,6 +6,7 @@ import { authClient, unwrapAuth } from '~/shared/auth'
 
 import { useAuthRedirect } from '../../model/useAuthRedirect.ts'
 
+/** Выход из аккаунта. После выхода пользователь попадает на главную страницу. */
 export function SignOutButton() {
   const redirect = useAuthRedirect()
   const signOut = useMutation({

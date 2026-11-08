@@ -1,6 +1,6 @@
 import { deviceTimeZoneScript, TimeZoneProvider } from '@repo/ui'
 import type { QueryClient } from '@tanstack/react-query'
-import { createRootRouteWithContext, HeadContent, Outlet, Scripts, ScriptOnce } from '@tanstack/react-router'
+import { createRootRouteWithContext, HeadContent, Outlet, ScriptOnce,Scripts } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
 import { userQueries } from '~/entities/user'

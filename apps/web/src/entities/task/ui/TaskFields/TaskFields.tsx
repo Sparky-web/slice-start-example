@@ -4,8 +4,8 @@ import { withForm } from '@repo/ui/form'
 import { emptyTaskInput, taskPriorityOptions, taskStatusOptions } from '../../model/taskSchema.ts'
 
 /**
- * Task fields reused by "create task" and "edit task" features.
- * Usage: `<TaskFields form={form} />` where `form = useAppForm({ defaultValues: TaskInput })`.
+ * Поля задачи: название, описание, этап, срочность и срок.
+ * Создание и правка задачи используют одни и те же поля.
  */
 export const TaskFields = withForm({
   defaultValues: emptyTaskInput,

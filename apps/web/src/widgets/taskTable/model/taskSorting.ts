@@ -1,16 +1,15 @@
 import type { SortingState } from '@repo/ui'
 
-import type { TaskListSearch, TaskSortField } from '~/entities/task'
+import type { TaskListSearch } from '~/entities/task'
 import { taskSortFields } from '~/entities/task'
 
-const isSortField = (id: string): id is TaskSortField => (taskSortFields as readonly string[]).includes(id)
-
-/** URL search → table sorting state. */
+/** Порядок задач из адреса страницы для таблицы. Без выбора пользователя порядок не задан. */
 export const toSorting = (search: TaskListSearch): SortingState =>
   search.sort ? [{ id: search.sort, desc: search.desc ?? true }] : []
 
-/** Table sorting state → URL search. */
+/** Порядок задач из таблицы для адреса страницы. Поля вне списка разрешённых сбрасывают порядок. */
 export function fromSorting(sorting: SortingState): Pick<TaskListSearch, 'sort' | 'desc'> {
   const [first] = sorting
-  return first && isSortField(first.id) ? { sort: first.id, desc: first.desc } : { sort: undefined, desc: undefined }
+  const sort = taskSortFields.find((field) => field === first?.id)
+  return sort && first ? { sort, desc: first.desc } : { sort: undefined, desc: undefined }
 }

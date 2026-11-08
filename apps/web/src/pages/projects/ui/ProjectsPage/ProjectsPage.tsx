@@ -3,6 +3,7 @@ import { Container, Heading, Stack, Text } from '@repo/ui'
 import { CreateProjectDialog } from '~/features/createProject'
 import { ProjectGrid } from '~/widgets/projectGrid'
 
+/** Все проекты пользователя и создание нового проекта. */
 export function ProjectsPage() {
   return (
     <Container padded size="xl">

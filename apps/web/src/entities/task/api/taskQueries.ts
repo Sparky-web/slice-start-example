@@ -1,16 +1,17 @@
-import { infiniteQueryOptions } from '@tanstack/react-query'
+import { listQueryOptions } from '@repo/ui'
 
 import type { TaskListSearch } from '../model/taskSchema.ts'
 import { listTasks } from './taskApi.ts'
 
+/** Данные задач для страниц и таблиц. */
 export const taskQueries = {
-  /** Prefix for invalidation of every task list of a project. */
+  /** Все списки задач проекта. Списки обновляются вместе после изменения задачи. */
   all: (projectId: string) => ['tasks', projectId] as const,
+  /** Список задач проекта с отбором и порядком из адреса страницы. */
   list: (projectId: string, search: TaskListSearch) =>
-    infiniteQueryOptions({
+    listQueryOptions({
       queryKey: [...taskQueries.all(projectId), 'list', search],
-      queryFn: ({ pageParam }) => listTasks({ data: { ...search, projectId, cursor: pageParam } }),
-      initialPageParam: null as string | null,
-      getNextPageParam: (page) => page.nextCursor,
+      fetchPage: (page) =>
+        listTasks({ data: { ...page, projectId, sort: search.sort, desc: search.desc, filters: { status: search.status, q: search.q } } }),
     }),
 }

@@ -8,24 +8,38 @@ import { TaskFields, taskInputSchema, taskQueries, toTaskInput } from '~/entitie
 
 import { updateTask } from '../../api/updateTask.ts'
 
+/** Настройки диалога правки задачи. */
 export interface EditTaskDialogProps {
+  /** Проект задачи. После сохранения обновляются список и счётчики проекта. */
   projectId: string
-  /** Task to edit, `null` keeps the dialog closed. */
+  /** Задача для правки. Без задачи диалог закрыт. */
   task: TaskListItem | null
+  /** Пользователь закрыл диалог или сохранил задачу. */
   onClose: () => void
 }
 
+/** Правка задачи в диалоге. Таблица и счётчики проекта обновляются после сохранения. */
 export function EditTaskDialog({ projectId, task, onClose }: EditTaskDialogProps) {
   return (
-    <Dialog open={task !== null} onOpenChange={(open) => { if (!open) onClose() }} title="Редактирование задачи">
+    <Dialog
+      open={task !== null}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+      title="Редактирование задачи"
+    >
       {task && <EditTaskForm key={task.id} projectId={projectId} task={task} onSaved={onClose} />}
     </Dialog>
   )
 }
 
+/** Настройки формы правки. */
 interface EditTaskFormProps {
+  /** Проект задачи. */
   projectId: string
+  /** Задача с текущими значениями. */
   task: TaskListItem
+  /** Задача сохранена. */
   onSaved: () => void
 }
 

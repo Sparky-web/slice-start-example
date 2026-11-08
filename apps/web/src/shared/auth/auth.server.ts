@@ -4,9 +4,15 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start'
 
 import { prisma } from '~/shared/db'
 
-/** Better Auth instance. Server-only: never import it into client code. */
+/** Вход, регистрация и сессии пользователей. Работает только на сервере. */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  user: {
+    additionalFields: {
+      // Пользователь меняет пояс в профиле, поэтому при регистрации поле не принимается
+      timeZone: { type: 'string', required: false, input: false },
+    },
+  },
   plugins: [tanstackStartCookies()],
 })

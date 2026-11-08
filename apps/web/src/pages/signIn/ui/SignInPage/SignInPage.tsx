@@ -5,6 +5,7 @@ import { SignInForm } from '~/features/session'
 
 const route = getRouteApi('/sign-in')
 
+/** Страница входа. Новый пользователь переходит отсюда к регистрации. */
 export function SignInPage() {
   const { redirect } = route.useSearch()
   return (

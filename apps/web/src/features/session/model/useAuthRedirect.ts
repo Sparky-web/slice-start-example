@@ -3,7 +3,7 @@ import { useNavigate, useRouter } from '@tanstack/react-router'
 
 import { userQueries } from '~/entities/user'
 
-/** After sign in/up/out: refresh the session in the cache and router context, then navigate. */
+/** После входа, регистрации и выхода обновляет данные пользователя на всех страницах и переводит на нужную страницу. */
 export function useAuthRedirect() {
   const queryClient = useQueryClient()
   const router = useRouter()

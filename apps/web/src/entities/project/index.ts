@@ -1,5 +1,5 @@
 export { getProject, listProjects } from './api/projectApi.ts'
 export { projectQueries } from './api/projectQueries.ts'
-export type { ProjectInput, ProjectListInput, ProjectListItem } from './model/projectSchema.ts'
-export { projectInputSchema, projectSortFields } from './model/projectSchema.ts'
+export type { ProjectInput, ProjectListItem } from './model/projectSchema.ts'
+export { projectInputSchema } from './model/projectSchema.ts'
 export { ProjectSummary } from './ui/ProjectSummary/ProjectSummary.tsx'

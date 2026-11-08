@@ -2,5 +2,5 @@ import { createServerOnlyFn } from '@tanstack/react-start'
 
 import { auth } from '../auth.server.ts'
 
-/** Handles Better Auth HTTP endpoints (`/api/auth/*`). Server-only. */
+/** Обрабатывает вход, регистрацию и выход. Работает только на сервере. */
 export const handleAuthRequest = createServerOnlyFn((request: Request) => auth.handler(request))

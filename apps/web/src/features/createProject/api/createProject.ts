@@ -4,6 +4,7 @@ import { projectInputSchema } from '~/entities/project'
 import { authMiddleware } from '~/shared/auth'
 import { prisma } from '~/shared/db'
 
+/** Создаёт проект пользователя. Пользователь становится владельцем проекта. */
 export const createProject = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .validator(projectInputSchema)

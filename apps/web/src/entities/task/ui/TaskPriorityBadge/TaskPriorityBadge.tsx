@@ -4,8 +4,15 @@ import { Badge } from '@repo/ui'
 import type { TaskPriority } from '../../model/taskSchema.ts'
 import { taskPriorityLabels } from '../../model/taskSchema.ts'
 
-const tones: Record<TaskPriority, BadgeProps['tone']> = { LOW: 'outline', MEDIUM: 'warning', HIGH: 'destructive' }
+const tones = { LOW: 'outline', MEDIUM: 'warning', HIGH: 'destructive' } as const satisfies Record<TaskPriority, BadgeProps['tone']>
 
-export function TaskPriorityBadge({ priority }: { priority: TaskPriority }) {
+/** Настройки метки срочности. */
+export interface TaskPriorityBadgeProps {
+  /** Срочность задачи. */
+  priority: TaskPriority
+}
+
+/** Метка срочности задачи. Срочные задачи заметны в длинном списке. */
+export function TaskPriorityBadge({ priority }: TaskPriorityBadgeProps) {
   return <Badge tone={tones[priority]}>{taskPriorityLabels[priority]}</Badge>
 }
