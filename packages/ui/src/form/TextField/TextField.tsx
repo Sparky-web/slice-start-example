@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Field } from '../../components/Field/Field.tsx'
 import { Input } from '../../components/Input/Input.tsx'
-import { fieldErrors, useFieldContext } from '../formContext.ts'
+import { changeField, fieldErrors, useFieldContext } from '../formContext.ts'
 
 /** Настройки однострочного поля формы. */
 export interface TextFieldProps {
@@ -40,7 +40,7 @@ export function TextField({ label, description, placeholder, type = 'text', auto
         type={type}
         value={field.state.value}
         onValueChange={(value) => {
-          field.handleChange(value)
+          changeField(field, value)
         }}
         onBlur={field.handleBlur}
         {...(placeholder === undefined ? {} : { placeholder })}

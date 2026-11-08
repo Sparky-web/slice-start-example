@@ -106,22 +106,42 @@ Prisma доступна только через `~/shared/db` (`prisma.server.ts
 
 ## Формы
 
+Сервер возвращает итог `ok(data)` или типизированную ошибку `fail({ code, field, params })`. Форма показывает ошибку поля под полем, общую — над формой.
+
 ```tsx
-const form = useAppForm({
-  defaultValues: { title: '' },
-  validators: { onChange: projectSchema },
-  onSubmit: ({ value }) => createProject.mutateAsync(value),
+type CreateTaskError =
+  | { code: 'PROJECT_NOT_FOUND' }
+  | { code: 'DUPLICATE_TITLE'; field: 'title'; params: { title: string } }
+
+const createTaskErrorMessage = (error: CreateTaskError) => {
+  switch (error.code) {
+    case 'PROJECT_NOT_FOUND': return 'Проект удалён или недоступен'
+    case 'DUPLICATE_TITLE': return `Задача «${error.params.title}» уже есть`
+  }
+}
+
+const submit = useSubmitAction({
+  action: (value) => createTask({ data: { ...value, projectId } }),
+  errorMessage: createTaskErrorMessage,
+  invalidates: [taskKeys.project(projectId)],
+  onSuccess: () => setOpen(false),
 })
+const form = useAppForm({ defaultValues, validators: { onChange: taskInputSchema, onSubmitAsync: submit } })
 
 <form.AppForm>
   <form.Form>
+    <form.FormError />
     <form.AppField name="title">{(field) => <field.TextField label="Название" />}</form.AppField>
     <form.SubmitButton>Создать</form.SubmitButton>
   </form.Form>
 </form.AppForm>
 ```
 
-Поля: `TextField`, `TextareaField`, `SelectField`, `CheckboxField`. Новое поле добавляется в `packages/ui/src/form/formHook.ts`.
+Новый код ошибки без текста не проходит проверку типов: `switch` обязан покрыть все коды. Поля: `TextField`, `TextareaField`, `SelectField`, `CheckboxField`.
+
+## Данные и кэш
+
+У каждой сущности два объекта в `api`: `taskKeys` — только ключи кэша для сброса, `taskQueries` — только описания запросов для чтения. Подробнее в [AGENTS.md](AGENTS.md).
 
 ## Таблицы
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { Field } from '../../components/Field/Field.tsx'
 import type { SelectOption } from '../../components/Select/Select.tsx'
 import { Select } from '../../components/Select/Select.tsx'
-import { fieldErrors, useFieldContext } from '../formContext.ts'
+import { changeField, fieldErrors, useFieldContext } from '../formContext.ts'
 
 /** Настройки поля выбора в форме. */
 export interface SelectFieldProps<Value extends string> {
@@ -34,7 +34,7 @@ export function SelectField<Value extends string>({ label, options, description,
         options={options}
         value={field.state.value}
         onValueChange={(value) => {
-          field.handleChange(value)
+          changeField(field, value)
         }}
         onBlur={field.handleBlur}
         {...(placeholder === undefined ? {} : { placeholder })}

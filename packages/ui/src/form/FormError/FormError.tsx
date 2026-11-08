@@ -1,20 +1,26 @@
 import { Alert } from '../../components/Alert/Alert.tsx'
+import { useFormContext } from '../formContext.ts'
+
+const formErrorText = (error: unknown): string | null => (typeof error === 'string' ? error : null)
 
 /** Настройки ошибки формы. */
 export interface FormErrorProps {
-  /** Ошибка последней отправки. Без ошибки блок не виден. */
-  error: unknown
   /** Главная мысль ошибки. */
   title?: string
 }
 
-/** Ошибка всей формы, например отказ сервера. Пользователь видит причину и может повторить отправку. */
-export function FormError({ error, title = 'Не удалось сохранить' }: FormErrorProps) {
-  if (error === null || error === undefined) return null
-  const message = error instanceof Error ? error.message : 'Попробуйте ещё раз'
+/** Ошибка всей формы после отправки, например чужой проект или нет связи с сервером. Ошибки полей видны под полями. */
+export function FormError({ title = 'Не удалось сохранить' }: FormErrorProps) {
+  const form = useFormContext()
   return (
-    <Alert tone="destructive" title={title}>
-      {message}
-    </Alert>
+    <form.Subscribe selector={(state) => formErrorText(state.errorMap.onSubmit)}>
+      {(error) =>
+        error !== null ? (
+          <Alert tone="destructive" title={title}>
+            {error}
+          </Alert>
+        ) : null
+      }
+    </form.Subscribe>
   )
 }

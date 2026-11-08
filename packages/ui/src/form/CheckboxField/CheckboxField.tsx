@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Checkbox } from '../../components/Checkbox/Checkbox.tsx'
 import { Field } from '../../components/Field/Field.tsx'
-import { fieldErrors, useFieldContext } from '../formContext.ts'
+import { changeField, fieldErrors, useFieldContext } from '../formContext.ts'
 
 /** Настройки флажка в форме. */
 export interface CheckboxFieldProps {
@@ -21,7 +21,7 @@ export function CheckboxField({ label, description }: CheckboxFieldProps) {
         label={label}
         checked={field.state.value}
         onCheckedChange={(checked) => {
-          field.handleChange(checked)
+          changeField(field, checked)
         }}
         onBlur={field.handleBlur}
       />
