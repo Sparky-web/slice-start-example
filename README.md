@@ -1,150 +1,55 @@
-# FSD Starter
+# TaskFlow — пример приложения на FSD Starter
 
-Базовый шаблон для больших веб-приложений на React: TanStack Start (SSR на Vite), сквозная типизация через серверные функции и TanStack Query, Prisma, дизайн-система на токенах и строгие правила структуры кода.
+Минимальный трекер задач, на котором видны все возможности [базового шаблона](../fsd-starter): авторизация, формы, таблицы, сквозная типизация и FSD с бэкендом в слайсах.
 
-Пример приложения на основе шаблона: [`fsd-starter-example`](../fsd-starter-example).
+Репозиторий создан клонированием шаблона. Обновления шаблона подтягиваются так:
 
-## Быстрый старт
+```bash
+git pull upstream main
+```
+
+## Запуск
 
 ```bash
 pnpm install
-cp apps/web/.env.example apps/web/.env   # укажите DATABASE_URL
-pnpm --filter web db:push                # схема Prisma → база
-pnpm dev                                 # http://localhost:3010
-pnpm storybook                           # http://localhost:6006
+cp apps/web/.env.example apps/web/.env   # DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL
+pnpm --filter web db:push
+pnpm --filter web db:seed                # demo@taskflow.dev / demo12345
+pnpm dev                                 # http://localhost:3020
 ```
 
-Перед коммитом: `pnpm check` (токены, типы, линтеры, FSD, тесты, сборка).
+`BETTER_AUTH_URL` должен совпадать с адресом, на котором открыто приложение.
 
-## Стек
+## Что где показано
 
-| Задача | Решение |
+| Возможность | Где смотреть |
 |---|---|
-| Фреймворк | TanStack Start + Router (SSR, файловый роутинг, серверные функции), Vite 8 |
-| Данные | TanStack Query, `createServerFn` + Zod, Prisma 7 (PostgreSQL) |
-| Дизайн-система | `@repo/ui`: Base UI + Tailwind v4 + cva, токены из Figma (`@repo/tokens`) |
-| Формы | TanStack Form `createFormHook`, поля из дизайн-системы |
-| Таблицы | `DataTable` (TanStack Table v9 + Virtual + бесконечная подгрузка), `DataGrid` (AG Grid Community, MIT) |
-| Утилиты | `@repo/lib`, es-toolkit, date-fns |
-| Типографика | `typo()` и Vite-плагин: неразрывные пробелы после предлогов на этапе сборки |
-| Качество | ESLint (strict-type-checked), Steiger, eslint-plugin-boundaries, dependency-cruiser, jscpd |
-| Тесты | Vitest 5 (browser mode), Storybook 10, скриншоты в `screens/` |
+| Регистрация, вход, выход (Better Auth + Prisma) | `features/session`, `shared/auth`, `app/routes/api/auth/$.ts` |
+| Защищённые роуты и редирект гостя | `app/routes/_authed.tsx`, `app/routes/sign-in.tsx` |
+| Серверные функции с проверкой сессии | `shared/auth/authMiddleware`, `entities/*/api`, `features/*/api` |
+| SSR и SEO | `app/routes/index.tsx` (`head`), loader в `app/routes/_authed/projects/$projectId.tsx` |
+| Формы: валидация Zod, ошибки сервера, чекбокс, select, дата | `features/session`, `features/createProject`, `features/editProfile` |
+| Переиспользуемая группа полей (`withForm`) | `entities/task/ui/TaskFields` → `features/createTask`, `features/editTask` |
+| `DataTable`: бесконечная подгрузка, сортировка и фильтры в URL | `widgets/taskTable`, `entities/task/api` |
+| `DataGrid` (AG Grid Community): блочная подгрузка, серверная сортировка и фильтр | `widgets/projectGrid` |
+| Типографика | весь русский текст в JSX: неразрывные пробелы ставит `typoPlugin` при сборке |
 
-## Структура
-
-```
-apps/web/                  приложение (FSD)
-  prisma/schema.prisma
-  src/
-    app/                   роутер, файловые роуты (тонкие), стили
-    pages/ widgets/ features/ entities/ shared/
-packages/
-  tokens/                  DTCG-токены из Figma → dist/theme.css
-  ui/                      дизайн-система, формы, DataTable, DataGrid, Storybook
-  lib/                     общие функции
-  vitePlugins/             typoPlugin
-  eslintConfig/            все правила, включая собственное repo/file-structure
-  tsconfig/
-```
-
-## Правила
-
-Всё ниже проверяет `pnpm lint`, нарушения ломают CI.
-
-### Слои FSD
-
-`app → pages → widgets → features → entities → shared`. Слой импортирует только нижние слои, слайсы одного слоя друг друга не импортируют. Импорт снаружи слайса — только через его `index.ts`. Проверяют `eslint-plugin-boundaries` (в редакторе) и Steiger (`pnpm --filter web lint:fsd`).
-
-Бэкенд живёт в том же слайсе, что и UI:
+## Слайсы
 
 ```
-entities/project/
-  api/projectApi.ts        createServerFn + Prisma
-  api/projectQueries.ts    queryOptions / infiniteQueryOptions
-  model/projectSchema.ts   Zod-схемы, общие для клиента и сервера
-  ui/ProjectCard/ProjectCard.tsx
-  index.ts                 публичный API
+entities/  user      текущий пользователь, аватар, схема имени
+           project   список и карточка проекта, счётчики задач
+           task      список задач, схемы, бейджи, поля формы
+features/  session        вход, регистрация, выход
+           createProject  диалог и серверная функция
+           createTask     диалог и серверная функция
+           editTask       редактирование по клику на строку
+           editProfile    смена имени
+widgets/   appHeader, taskTable, projectGrid
+pages/     home, signIn, signUp, projects, project, profile, notFound
+shared/    auth (Better Auth), db (Prisma), config
 ```
 
-Prisma доступна только через `~/shared/db` (`prisma.server.ts`). Импорт `*.server.*` в клиентский код TanStack Start запрещает на этапе сборки.
+Каждый слайс экспортирует публичный API через `index.ts`. Серверный код лежит рядом с UI того же слайса, а клиентский бандл его не получает: тела `createServerFn` и `createServerOnlyFn` вырезаются при сборке, `*.server.ts` защищён import protection.
 
-### Нейминг и инкапсуляция
-
-- `.ts` — camelCase, `.tsx` — компоненты в PascalCase.
-- Компонент лежит в своей папке: `Button/Button.tsx`, рядом `Button.story.tsx`, `Button.test.tsx`, `screens/`.
-- Функция-хелпер в `lib` лежит в своей папке: `formatDate/formatDate.ts` и `formatDate.test.ts`.
-- Папки в camelCase, PascalCase допустим только для папки компонента.
-
-### Дизайн-система
-
-- В `@theme` есть только токены, стандартная палитра и шкалы Tailwind сброшены. Классы вне токенов (`p-7`, `bg-red-500`) и произвольные значения (`w-[37px]`) — ошибка линтера.
-- В приложении запрещены `style`, сырые `<button>`, `<input>`, `<a>`, `<p>`, `<h1>`… а также `clsx`, `cva`, `@base-ui/*`, `ag-grid-*` напрямую. Всё собирается из `@repo/ui`.
-- Исключение оформляется точечно: `// eslint-disable-next-line <rule> -- причина`. Без описания причины линтер не пропустит.
-
-### React
-
-- `useEffect`, `useLayoutEffect`, `useInsertionEffect` запрещены. Данные загружаются в `loader` роута и через `useQuery`, на события реагируют в обработчиках, производные значения считаются во время рендера.
-- `react-hooks`, `@eslint-react` (strict), TanStack Query и Router плагины.
-
-## Токены и Figma
-
-Источник правды — переменные в Figma (рекомендуется Obra shadcn/ui Community, имена совпадают с shadcn один к одному).
-
-1. Экспортируйте переменные из Figma в формате W3C DTCG и положите в `packages/tokens/src/`:
-   `primitives.tokens.json`, `theme.light.tokens.json`, `theme.dark.tokens.json`.
-2. `pnpm tokens` → `packages/tokens/dist/theme.css`.
-3. Закоммитьте оба изменения. `pnpm tokens:check` в CI падает, если CSS разошёлся с токенами.
-
-## Формы
-
-```tsx
-const form = useAppForm({
-  defaultValues: { title: '' },
-  validators: { onChange: projectSchema },
-  onSubmit: ({ value }) => createProject.mutateAsync(value),
-})
-
-<form.AppForm>
-  <form.Form>
-    <form.AppField name="title">{(field) => <field.TextField label="Название" />}</form.AppField>
-    <form.SubmitButton>Создать</form.SubmitButton>
-  </form.Form>
-</form.AppForm>
-```
-
-Поля: `TextField`, `TextareaField`, `SelectField`, `CheckboxField`. Новое поле добавляется в `packages/ui/src/form/formHook.ts`.
-
-## Таблицы
-
-```tsx
-const column = createDataTableColumns<Task>()
-const columns = column.columns([column.accessor('title', { header: 'Название' })])
-
-<DataTable columns={columns} query={taskQueries.list(filters)} getRowId={(task) => task.id} />
-```
-
-Серверная функция возвращает `DataPage<T>`: `{ items, nextCursor, total }`. Сортировку храните в search params роута.
-
-## Скриншоты
-
-Каждая история Storybook — визуальный тест. Эталоны лежат в `Component/screens/<story>-<platform>.png`.
-
-```bash
-pnpm --filter @repo/ui test          # сравнить
-pnpm --filter @repo/ui test:update   # обновить эталоны
-```
-
-Эталоны зависят от платформы, поэтому в CI (`CI=1`) истории только рендерятся. Сравнивайте скриншоты локально или снимайте Linux-эталоны в контейнере `mcr.microsoft.com/playwright`.
-
-## Команды
-
-| Команда | Что делает |
-|---|---|
-| `pnpm dev` | dev-сервер приложения |
-| `pnpm build` | сборка приложения и Storybook |
-| `pnpm --filter web start` | запуск собранного приложения |
-| `pnpm lint` | ESLint, Steiger, dependency-cruiser, jscpd |
-| `pnpm typecheck` | TypeScript во всех пакетах |
-| `pnpm test` | unit-, компонентные и скриншотные тесты |
-| `pnpm tokens` | токены → CSS |
-| `pnpm check` | всё перед коммитом |
+Проверка перед коммитом: `pnpm check`.

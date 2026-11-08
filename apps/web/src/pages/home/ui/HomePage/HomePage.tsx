@@ -1,39 +1,45 @@
-import { formatDate } from '@repo/lib'
-import { Badge, Card, Container, Heading, Stack, Text } from '@repo/ui'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { ButtonLink, Card, Container, Heading, Stack, Text } from '@repo/ui'
+import { getRouteApi, Link } from '@tanstack/react-router'
 
-import { homePageQueries } from '../../api/homePageQueries.ts'
+const rootRoute = getRouteApi('__root__')
 
 const features = [
-  { title: 'TanStack Start', description: 'SSR, файловый роутинг и серверные функции на Vite' },
-  { title: 'Prisma', description: 'Типизированная база данных прямо в серверных функциях' },
-  { title: 'Дизайн-система', description: 'Токены из Figma, компоненты на Base UI и Tailwind' },
-  { title: 'FSD и линтинг', description: 'Слои, нейминг и запрет useEffect проверяются в CI' },
+  { title: 'Проекты', description: 'Грид на AG Grid Community с фильтром и сортировкой на сервере' },
+  { title: 'Задачи', description: 'Таблица с бесконечной подгрузкой, фильтры и сортировка живут в адресе' },
+  { title: 'Формы', description: 'Создание и редактирование на TanStack Form с полями из дизайн-системы' },
 ] as const
 
 export function HomePage() {
-  const { data: status } = useSuspenseQuery(homePageQueries.status())
+  const { user } = rootRoute.useRouteContext()
 
   return (
     <Container padded>
-      <Stack gap={8}>
-        <Stack gap={3}>
-          <Heading level={1}>Базовый шаблон для веб-приложений</Heading>
+      <Stack gap={12}>
+        <Stack gap={4} align="start">
+          <Heading level={1}>TaskFlow — задачи команды в одном месте</Heading>
           <Text tone="muted" size="lg">
-            Начните со слайса в src/entities или src/features — всё остальное уже настроено.
+            Пример приложения на FSD Starter: авторизация, проекты и задачи с сервером в том же слайсе.
           </Text>
-          <Stack direction="row" gap={2} align="center">
-            <Badge tone={status.database === 'ok' ? 'success' : 'destructive'}>
-              {status.database === 'ok' ? 'База данных подключена' : 'Нет подключения к базе'}
-            </Badge>
-            <Text size="sm" tone="muted">
-              Проверено {formatDate(status.checkedAt, 'dateTime')}
-            </Text>
+          <Stack direction="row" gap={2} wrap>
+            {user ? (
+              <ButtonLink size="lg" render={<Link to="/projects" />}>
+                Открыть проекты
+              </ButtonLink>
+            ) : (
+              <>
+                <ButtonLink size="lg" render={<Link to="/sign-up" />}>
+                  Создать аккаунт
+                </ButtonLink>
+                <ButtonLink size="lg" variant="outline" render={<Link to="/sign-in" />}>
+                  Войти
+                </ButtonLink>
+              </>
+            )}
           </Stack>
         </Stack>
-        <Stack direction="responsive" gap={4} wrap>
+        <Stack direction="responsive" gap={4}>
           {features.map((feature) => (
-            <Card key={feature.title} title={feature.title} description={feature.description} />
+            <Card key={feature.title} title={feature.title} description={feature.description} className="flex-1" />
           ))}
         </Stack>
       </Stack>

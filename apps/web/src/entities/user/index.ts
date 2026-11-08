@@ -1,0 +1,5 @@
+export { getCurrentUser } from './api/userApi.ts'
+export { userQueries } from './api/userQueries.ts'
+export { userNameSchema } from './model/userSchema.ts'
+export { UserAvatar } from './ui/UserAvatar/UserAvatar.tsx'
+export type { SessionUser } from '~/shared/auth'

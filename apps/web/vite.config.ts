@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  server: { port: 3010 },
+  server: { port: 3020 },
   resolve: { tsconfigPaths: true },
   plugins: [
     typoPlugin(),

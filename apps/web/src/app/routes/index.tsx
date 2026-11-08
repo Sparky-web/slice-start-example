@@ -1,13 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { HomePage, homePageQueries } from '~/pages/home'
+import { HomePage } from '~/pages/home'
 
 export const Route = createFileRoute('/')({
-  loader: ({ context }) => context.queryClient.query(homePageQueries.status()),
   head: () => ({
     meta: [
-      { title: 'FSD Starter — TanStack Start, Prisma и дизайн-система' },
-      { name: 'description', content: 'Базовый шаблон: SSR, сквозная типизация, FSD и строгий линтинг.' },
+      { title: 'TaskFlow — задачи команды в одном месте' },
+      { name: 'description', content: 'Проекты, задачи и сроки команды. Пример приложения на FSD Starter.' },
+      { property: 'og:title', content: 'TaskFlow' },
+      { property: 'og:description', content: 'Проекты, задачи и сроки команды.' },
     ],
   }),
   component: HomePage,

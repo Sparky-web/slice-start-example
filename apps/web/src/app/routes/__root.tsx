@@ -2,6 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
+import { userQueries } from '~/entities/user'
 import { NotFoundPage } from '~/pages/notFound'
 
 import appCss from '../styles/app.css?url'
@@ -11,11 +12,14 @@ export interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  beforeLoad: async ({ context }) => ({
+    user: await context.queryClient.query(userQueries.current()),
+  }),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'FSD Starter' },
+      { title: 'TaskFlow' },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
