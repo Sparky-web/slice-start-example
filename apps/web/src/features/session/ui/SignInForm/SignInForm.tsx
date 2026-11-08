@@ -1,9 +1,9 @@
-import { useAppForm } from '@repo/ui/form'
-import { useMutation } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 
-import { authClient, unwrapAuth } from '~/shared/auth'
-
+import type { SignInValues } from '../../api/sessionActions.ts'
+import { signIn } from '../../api/sessionActions.ts'
 import { signInSchema } from '../../model/authSchema.ts'
+import { signInErrorMessage } from '../../model/sessionErrors.ts'
 import { useAuthRedirect } from '../../model/useAuthRedirect.ts'
 
 /** Настройки формы входа. */
@@ -12,23 +12,25 @@ export interface SignInFormProps {
   redirectTo?: string
 }
 
+const emptySignIn: SignInValues = { email: '', password: '' }
+
 /** Вход по почте и паролю. После входа пользователь возвращается на страницу, с которой пришёл. */
 export function SignInForm({ redirectTo = '/projects' }: SignInFormProps) {
   const redirect = useAuthRedirect()
-  const signIn = useMutation({
-    mutationFn: (value: { email: string; password: string }) => unwrapAuth(authClient.signIn.email(value)),
+  const submit = useSubmitAction({
+    action: signIn,
+    errorMessage: signInErrorMessage,
     onSuccess: () => redirect(redirectTo),
   })
   const form = useAppForm({
-    defaultValues: { email: '', password: '' },
-    validators: { onChange: signInSchema },
-    onSubmit: ({ value }) => signIn.mutateAsync(value),
+    defaultValues: emptySignIn,
+    validators: { onChange: signInSchema, onSubmitAsync: submit },
   })
 
   return (
     <form.AppForm>
       <form.Form>
-        <form.FormError error={signIn.error} title="Не удалось войти" />
+        <form.FormError title="Не удалось войти" />
         <form.AppField name="email">{(field) => <field.TextField label="Почта" type="email" autoComplete="email" />}</form.AppField>
         <form.AppField name="password">
           {(field) => <field.TextField label="Пароль" type="password" autoComplete="current-password" />}

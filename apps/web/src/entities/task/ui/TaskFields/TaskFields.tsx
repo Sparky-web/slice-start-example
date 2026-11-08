@@ -1,7 +1,8 @@
 import { Stack } from '@repo/ui'
-import { withForm } from '@repo/ui/form'
+import { submitSlot, withForm } from '@repo/ui/form'
 
-import { emptyTaskInput, taskPriorityOptions, taskStatusOptions } from '../../model/taskSchema.ts'
+import type { TaskInput } from '../../model/taskSchema.ts'
+import { emptyTaskInput, taskInputSchema, taskPriorityOptions, taskStatusOptions } from '../../model/taskSchema.ts'
 
 /**
  * Поля задачи: название, описание, этап, срочность и срок.
@@ -9,6 +10,7 @@ import { emptyTaskInput, taskPriorityOptions, taskStatusOptions } from '../../mo
  */
 export const TaskFields = withForm({
   defaultValues: emptyTaskInput,
+  validators: { onChange: taskInputSchema, onSubmitAsync: submitSlot<TaskInput>() },
   render: function TaskFieldsRender({ form }) {
     return (
       <>

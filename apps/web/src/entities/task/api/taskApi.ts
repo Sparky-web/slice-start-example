@@ -1,3 +1,4 @@
+import { searchKey } from '@repo/lib'
 import type { ListPage } from '@repo/ui'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -34,6 +35,7 @@ export const toTaskItem = (task: TaskRow): TaskListItem => ({
 /** Значения формы задачи для записи в базу. */
 export const toTaskRecord = (input: TaskInput) => ({
   title: input.title,
+  titleKey: searchKey(input.title),
   description: input.description,
   status: input.status,
   priority: input.priority,
@@ -44,6 +46,7 @@ export const toTaskRecord = (input: TaskInput) => ({
  * Задачи проекта порциями для таблицы.
  * Пользователь видит только задачи своих проектов.
  * Отбор и порядок выполняет база, поэтому список работает быстро на тысячах задач.
+ * Поиск не различает регистр и буквы «ё» и «е».
  */
 export const listTasks = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -53,7 +56,7 @@ export const listTasks = createServerFn({ method: 'GET' })
       projectId: data.projectId,
       project: { ownerId: context.user.id },
       ...(data.filters.status ? { status: data.filters.status } : {}),
-      ...(data.filters.q ? { title: { contains: data.filters.q, mode: 'insensitive' as const } } : {}),
+      ...(data.filters.q ? { titleKey: { contains: searchKey(data.filters.q) } } : {}),
     }
     const [rows, total] = await prisma.$transaction([
       prisma.task.findMany({ where, ...pageArgs(data, taskSortFields, 'createdAt') }),

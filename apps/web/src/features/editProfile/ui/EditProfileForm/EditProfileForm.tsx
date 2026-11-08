@@ -1,14 +1,15 @@
 import { timeZoneOptions } from '@repo/lib'
 import { Alert, Field, Input } from '@repo/ui'
-import { useAppForm } from '@repo/ui/form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 import { useRouter } from '@tanstack/react-router'
+import { useState } from 'react'
 import type { z } from 'zod'
 
 import type { SessionUser } from '~/entities/user'
-import { DEVICE_TIME_ZONE, userQueries } from '~/entities/user'
+import { DEVICE_TIME_ZONE, userKeys } from '~/entities/user'
 
 import { profileSchema, updateProfile } from '../../api/updateProfile.ts'
+import { updateProfileErrorMessage } from '../../model/updateProfileErrors.ts'
 
 /** Настройки формы профиля. */
 export interface EditProfileFormProps {
@@ -20,26 +21,33 @@ const timeZoneChoices = () => [{ value: DEVICE_TIME_ZONE, label: 'Как на у
 
 /** Форма профиля: имя и часовой пояс, в котором пользователь видит даты. Почта видна, но не меняется. */
 export function EditProfileForm({ user }: EditProfileFormProps) {
-  const queryClient = useQueryClient()
   const router = useRouter()
-  const update = useMutation({
-    mutationFn: (data: z.infer<typeof profileSchema>) => updateProfile({ data }),
+  const [saved, setSaved] = useState(false)
+  const submit = useSubmitAction({
+    action: (data: z.infer<typeof profileSchema>) => updateProfile({ data }),
+    errorMessage: updateProfileErrorMessage,
+    invalidates: [userKeys.current],
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: userQueries.current().queryKey })
+      setSaved(true)
+      // Часовой пояс задаёт каркас страницы, поэтому роутер перечитывает пользователя
       await router.invalidate()
     },
   })
   const form = useAppForm({
     defaultValues: { name: user.name, timeZone: user.timeZone ?? DEVICE_TIME_ZONE },
-    validators: { onChange: profileSchema },
-    onSubmit: ({ value }) => update.mutateAsync(value),
+    validators: { onChange: profileSchema, onSubmitAsync: submit },
+    listeners: {
+      onChange: () => {
+        setSaved(false)
+      },
+    },
   })
 
   return (
     <form.AppForm>
       <form.Form>
-        <form.FormError error={update.error} />
-        {update.isSuccess && <Alert tone="success" title="Профиль сохранён" />}
+        <form.FormError />
+        {saved && <Alert tone="success" title="Профиль сохранён" />}
         <Field label="Почта" description="Почту изменить нельзя">
           <Input value={user.email} disabled />
         </Field>

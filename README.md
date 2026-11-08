@@ -35,6 +35,9 @@ pnpm dev                                 # http://localhost:3020
 | Типографика | весь русский текст в JSX: неразрывные пробелы ставит `typoPlugin` при сборке |
 | Часовой пояс пользователя | `features/editProfile` (выбор в профиле), `shared/auth` (поле пользователя), `app/routes/__root.tsx` |
 | Temporal: срок задачи — календарная дата, создание — момент | `entities/task/model`, `shared/lib/dbDates` |
+| Типизированные ошибки действий у полей формы | `features/*/model/*Errors.ts`, `features/*/api`, `features/session/api/sessionActions.ts` |
+| Ключи кэша и запросы раздельно | `entities/*/api/*Queries.ts`: `taskKeys` и `taskQueries` |
+| Поиск и дубли без учёта регистра и «ё» | `nameKey`, `titleKey` в схеме, `searchKey` из `@repo/lib` |
 | Общий контракт списков для таблицы и грида | `entities/task/api/taskApi.ts`, `entities/project/api/projectApi.ts` |
 
 ## Слайсы

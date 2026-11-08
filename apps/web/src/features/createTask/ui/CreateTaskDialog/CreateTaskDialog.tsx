@@ -1,14 +1,14 @@
 import { Button, Dialog } from '@repo/ui'
-import { useAppForm } from '@repo/ui/form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { projectQueries } from '~/entities/project'
+import { projectKeys } from '~/entities/project'
 import type { TaskInput } from '~/entities/task'
-import { emptyTaskInput, TaskFields, taskInputSchema, taskQueries } from '~/entities/task'
+import { emptyTaskInput, TaskFields, taskInputSchema, taskKeys } from '~/entities/task'
 
 import { createTask } from '../../api/createTask.ts'
+import { createTaskErrorMessage } from '../../model/createTaskErrors.ts'
 
 /** Настройки диалога новой задачи. */
 export interface CreateTaskDialogProps {
@@ -16,25 +16,21 @@ export interface CreateTaskDialogProps {
   projectId: string
 }
 
-/** Создание задачи в диалоге. Новая задача сразу появляется в таблице проекта. */
+/** Создание задачи в диалоге. Новая задача сразу появляется в таблице, счётчики проекта обновляются. */
 export function CreateTaskDialog({ projectId }: CreateTaskDialogProps) {
   const [open, setOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const create = useMutation({
-    mutationFn: (input: TaskInput) => createTask({ data: { ...input, projectId } }),
-    onSuccess: async () => {
+  const submit = useSubmitAction({
+    action: (input: TaskInput) => createTask({ data: { ...input, projectId } }),
+    errorMessage: createTaskErrorMessage,
+    invalidates: [taskKeys.project(projectId), projectKeys.detail(projectId)],
+    onSuccess: () => {
       setOpen(false)
       form.reset()
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: taskQueries.all(projectId) }),
-        queryClient.invalidateQueries({ queryKey: projectQueries.detail(projectId).queryKey }),
-      ])
     },
   })
   const form = useAppForm({
     defaultValues: emptyTaskInput,
-    validators: { onChange: taskInputSchema },
-    onSubmit: ({ value }) => create.mutateAsync(value),
+    validators: { onChange: taskInputSchema, onSubmitAsync: submit },
   })
 
   return (
@@ -51,7 +47,7 @@ export function CreateTaskDialog({ projectId }: CreateTaskDialogProps) {
     >
       <form.AppForm>
         <form.Form>
-          <form.FormError error={create.error} />
+          <form.FormError />
           <TaskFields form={form} />
           <form.SubmitButton>Создать задачу</form.SubmitButton>
         </form.Form>

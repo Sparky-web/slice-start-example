@@ -1,28 +1,29 @@
-import { useAppForm } from '@repo/ui/form'
-import { useMutation } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 
-import { authClient, unwrapAuth } from '~/shared/auth'
-
+import { signUp } from '../../api/sessionActions.ts'
 import { signUpSchema } from '../../model/authSchema.ts'
+import { signUpErrorMessage } from '../../model/sessionErrors.ts'
 import { useAuthRedirect } from '../../model/useAuthRedirect.ts'
+
+const emptySignUp = { name: '', email: '', password: '', acceptTerms: false }
 
 /** Регистрация по почте и паролю. После регистрации пользователь сразу попадает к своим проектам. */
 export function SignUpForm() {
   const redirect = useAuthRedirect()
-  const signUp = useMutation({
-    mutationFn: (value: { name: string; email: string; password: string }) => unwrapAuth(authClient.signUp.email(value)),
+  const submit = useSubmitAction({
+    action: ({ acceptTerms: _acceptTerms, ...values }: typeof emptySignUp) => signUp(values),
+    errorMessage: signUpErrorMessage,
     onSuccess: () => redirect('/projects'),
   })
   const form = useAppForm({
-    defaultValues: { name: '', email: '', password: '', acceptTerms: false },
-    validators: { onChange: signUpSchema },
-    onSubmit: ({ value: { acceptTerms: _acceptTerms, ...value } }) => signUp.mutateAsync(value),
+    defaultValues: emptySignUp,
+    validators: { onChange: signUpSchema, onSubmitAsync: submit },
   })
 
   return (
     <form.AppForm>
       <form.Form>
-        <form.FormError error={signUp.error} title="Не удалось зарегистрироваться" />
+        <form.FormError title="Не удалось зарегистрироваться" />
         <form.AppField name="name">{(field) => <field.TextField label="Имя" autoComplete="name" />}</form.AppField>
         <form.AppField name="email">{(field) => <field.TextField label="Почта" type="email" autoComplete="email" />}</form.AppField>
         <form.AppField name="password">

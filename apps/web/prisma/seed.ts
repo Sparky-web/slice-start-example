@@ -3,7 +3,7 @@
  * Run: pnpm --filter web db:seed
  */
 import { PrismaPg } from '@prisma/adapter-pg'
-import { ensureTemporal } from '@repo/lib'
+import { ensureTemporal, searchKey } from '@repo/lib'
 import { generateId } from 'better-auth'
 import { hashPassword } from 'better-auth/crypto'
 
@@ -42,17 +42,21 @@ for (let index = 0; index < 40; index += 1) {
   const taskCount = index === 0 ? 1200 : (index * 7) % 45
   const name = index < projectNames.length ? pick(projectNames, index) : `${pick(projectNames, index)} ${String(Math.floor(index / projectNames.length) + 1)}`
   const project = await prisma.project.create({
-    data: { name, description: `Демо-проект №${String(index + 1)}`, ownerId: userId, createdAt: toDbInstant(now.subtract({ hours: index * 24 })) },
+    data: { name, nameKey: searchKey(name), description: `Демо-проект №${String(index + 1)}`, ownerId: userId, createdAt: toDbInstant(now.subtract({ hours: index * 24 })) },
   })
   await prisma.task.createMany({
-    data: Array.from({ length: taskCount }, (_, task) => ({
-      projectId: project.id,
-      title: `${pick(verbs, task)} ${pick(objects, task * 3 + index)} #${String(task + 1)}`,
-      status: pick(statuses, task * 5 + index),
-      priority: pick(priorities, task * 2 + index),
-      dueDate: task % 4 === 0 ? null : toDbDate(today.add({ days: (task % 60) - 20 })),
-      createdAt: toDbInstant(now.subtract({ hours: task })),
-    })),
+    data: Array.from({ length: taskCount }, (_, task) => {
+      const title = `${pick(verbs, task)} ${pick(objects, task * 3 + index)} #${String(task + 1)}`
+      return {
+        projectId: project.id,
+        title,
+        titleKey: searchKey(title),
+        status: pick(statuses, task * 5 + index),
+        priority: pick(priorities, task * 2 + index),
+        dueDate: task % 4 === 0 ? null : toDbDate(today.add({ days: (task % 60) - 20 })),
+        createdAt: toDbInstant(now.subtract({ hours: task })),
+      }
+    }),
   })
 }
 

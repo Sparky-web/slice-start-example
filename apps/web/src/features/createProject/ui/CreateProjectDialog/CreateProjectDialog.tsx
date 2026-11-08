@@ -1,25 +1,28 @@
 import { Button, Dialog } from '@repo/ui'
-import { useAppForm } from '@repo/ui/form'
-import { useMutation } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 
 import type { ProjectInput } from '~/entities/project'
-import { projectInputSchema } from '~/entities/project'
+import { projectInputSchema, projectKeys } from '~/entities/project'
 
 import { createProject } from '../../api/createProject.ts'
+import { createProjectErrorMessage } from '../../model/createProjectErrors.ts'
+
+const emptyProject: ProjectInput = { name: '', description: '' }
 
 /** Создание проекта в диалоге. После создания пользователь сразу попадает в новый проект. */
 export function CreateProjectDialog() {
   const navigate = useNavigate()
-  const create = useMutation({
-    mutationFn: (data: ProjectInput) => createProject({ data }),
+  const submit = useSubmitAction({
+    action: (data: ProjectInput) => createProject({ data }),
+    errorMessage: createProjectErrorMessage,
+    invalidates: [projectKeys.all],
     onSuccess: ({ id }) => navigate({ to: '/projects/$projectId', params: { projectId: id } }),
   })
   const form = useAppForm({
-    defaultValues: { name: '', description: '' } satisfies ProjectInput,
-    validators: { onChange: projectInputSchema },
-    onSubmit: ({ value }) => create.mutateAsync(value),
+    defaultValues: emptyProject,
+    validators: { onChange: projectInputSchema, onSubmitAsync: submit },
   })
 
   return (
@@ -35,7 +38,7 @@ export function CreateProjectDialog() {
     >
       <form.AppForm>
         <form.Form>
-          <form.FormError error={create.error} />
+          <form.FormError />
           <form.AppField name="name">{(field) => <field.TextField label="Название" required />}</form.AppField>
           <form.AppField name="description">
             {(field) => <field.TextareaField label="Описание" placeholder="Цель проекта и ссылки на материалы" />}

@@ -78,6 +78,8 @@ model Verification {
 model Project {
   id          String   @id @default(cuid())
   name        String
+  /// Название для поиска и проверки дублей: без регистра и «ё». Не зависит от локали базы.
+  nameKey     String
   description String   @default("")
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -85,6 +87,7 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@unique([ownerId, nameKey])
   @@index([ownerId, createdAt])
   @@map("project")
 }
@@ -104,6 +107,8 @@ enum TaskPriority {
 model Task {
   id          String       @id @default(cuid())
   title       String
+  /// Название для поиска и проверки дублей: без регистра и «ё». Не зависит от локали базы.
+  titleKey    String
   description String       @default("")
   status      TaskStatus   @default(TODO)
   priority    TaskPriority @default(MEDIUM)
@@ -113,6 +118,7 @@ model Task {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  @@unique([projectId, titleKey])
   @@index([projectId, createdAt])
   @@index([projectId, status])
   @@map("task")

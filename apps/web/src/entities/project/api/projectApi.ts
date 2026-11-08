@@ -1,3 +1,4 @@
+import { searchKey } from '@repo/lib'
 import type { ListPage } from '@repo/ui'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
@@ -29,7 +30,7 @@ export const listProjects = createServerFn({ method: 'GET' })
   .handler(async ({ data, context }): Promise<ListPage<ProjectListItem>> => {
     const where = {
       ownerId: context.user.id,
-      ...(data.filters.name ? { name: { contains: data.filters.name, mode: 'insensitive' as const } } : {}),
+      ...(data.filters.name ? { nameKey: { contains: searchKey(data.filters.name) } } : {}),
     }
     const [rows, total] = await prisma.$transaction([
       prisma.project.findMany({

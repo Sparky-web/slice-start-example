@@ -1,12 +1,12 @@
 import { Dialog } from '@repo/ui'
-import { useAppForm } from '@repo/ui/form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useAppForm, useSubmitAction } from '@repo/ui/form'
 
-import { projectQueries } from '~/entities/project'
+import { projectKeys } from '~/entities/project'
 import type { TaskInput, TaskListItem } from '~/entities/task'
-import { TaskFields, taskInputSchema, taskQueries, toTaskInput } from '~/entities/task'
+import { TaskFields, taskInputSchema, taskKeys, toTaskInput } from '~/entities/task'
 
 import { updateTask } from '../../api/updateTask.ts'
+import { updateTaskErrorMessage } from '../../model/updateTaskErrors.ts'
 
 /** Настройки диалога правки задачи. */
 export interface EditTaskDialogProps {
@@ -44,27 +44,21 @@ interface EditTaskFormProps {
 }
 
 function EditTaskForm({ projectId, task, onSaved }: EditTaskFormProps) {
-  const queryClient = useQueryClient()
-  const update = useMutation({
-    mutationFn: (input: TaskInput) => updateTask({ data: { ...input, id: task.id } }),
-    onSuccess: async () => {
-      onSaved()
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: taskQueries.all(projectId) }),
-        queryClient.invalidateQueries({ queryKey: projectQueries.detail(projectId).queryKey }),
-      ])
-    },
+  const submit = useSubmitAction({
+    action: (input: TaskInput) => updateTask({ data: { ...input, id: task.id } }),
+    errorMessage: updateTaskErrorMessage,
+    invalidates: [taskKeys.project(projectId), projectKeys.detail(projectId)],
+    onSuccess: onSaved,
   })
   const form = useAppForm({
     defaultValues: toTaskInput(task),
-    validators: { onChange: taskInputSchema },
-    onSubmit: ({ value }) => update.mutateAsync(value),
+    validators: { onChange: taskInputSchema, onSubmitAsync: submit },
   })
 
   return (
     <form.AppForm>
       <form.Form>
-        <form.FormError error={update.error} />
+        <form.FormError />
         <TaskFields form={form} />
         <form.SubmitButton>Сохранить</form.SubmitButton>
       </form.Form>
