@@ -42,6 +42,20 @@ export const base = (tsconfigRootDir) => [
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { ignoreRestSiblings: true, argsIgnorePattern: '^_', varsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
+      ],
+      // TanStack Router control flow: `throw redirect(...)`, `throw notFound()`
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: [
+            { from: 'package', package: '@tanstack/router-core', name: ['Redirect', 'NotFoundError'] },
+            { from: 'package', package: '@tanstack/react-router', name: ['Redirect', 'NotFoundError'] },
+          ],
+        },
+      ],
       '@eslint-community/eslint-comments/require-description': ['error', { ignore: [] }],
       '@eslint-community/eslint-comments/no-unlimited-disable': 'error',
       '@eslint-community/eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }],

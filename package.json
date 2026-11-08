@@ -10,15 +10,16 @@
     "dev": "turbo run dev --filter=web",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "lint": "eslint . --max-warnings=0 && pnpm --filter web lint:fsd && pnpm lint:deps && pnpm lint:dup",
-    "lint:fix": "eslint . --fix",
+    "lint": "pnpm lint:es && pnpm --filter web lint:fsd && pnpm lint:deps && pnpm lint:dup",
+    "lint:fix": "NODE_OPTIONS=--max-old-space-size=8192 eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
     "lint:deps": "depcruise apps packages --config .dependency-cruiser.cjs",
     "lint:dup": "jscpd",
     "test": "turbo run test",
     "tokens": "pnpm --filter @repo/tokens build",
     "storybook": "pnpm --filter @repo/ui storybook",
     "check": "pnpm tokens:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build",
-    "tokens:check": "pnpm --filter @repo/tokens check"
+    "tokens:check": "pnpm --filter @repo/tokens check",
+    "lint:es": "NODE_OPTIONS=--max-old-space-size=8192 eslint . --max-warnings=0 --cache --cache-location node_modules/.cache/eslint/"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
