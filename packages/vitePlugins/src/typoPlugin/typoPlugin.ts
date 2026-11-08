@@ -10,10 +10,11 @@ interface Node {
   [key: string]: unknown
 }
 
+/** Настройки типографики при сборке. */
 export interface TypoPluginOptions {
-  /** JSX attributes with human-readable text. */
+  /** Свойства элементов, в которых лежит текст для людей: подписи, подсказки, заголовки. */
   attributes?: readonly string[]
-  /** Files to transform. */
+  /** Какие файлы обрабатывать. */
   include?: RegExp
 }
 
@@ -29,7 +30,7 @@ const DEFAULT_ATTRIBUTES = [
 ] as const
 
 const isNode = (value: unknown): value is Node =>
-  typeof value === 'object' && value !== null && typeof (value as { type?: unknown }).type === 'string'
+  typeof value === 'object' && value !== null && 'type' in value && typeof value.type === 'string'
 
 const childNodes = (node: Node): Node[] =>
   Object.values(node).flatMap((value: unknown) => (Array.isArray(value) ? value.filter(isNode) : isNode(value) ? [value] : []))
@@ -39,24 +40,63 @@ function walk(node: Node, visit: (node: Node, parent: Node | undefined) => void,
   for (const child of childNodes(node)) walk(child, visit, node)
 }
 
-const SENTINEL = '\uE000'
+const SENTINEL = ''
 
-/** Replaces raw text with typographed text, keeping JSX whitespace rules intact. */
+// Пробелы с переносом строки по краям текста разметка отбрасывает, обычные пробелы остаются и склеиваются
 function typoJsxText(raw: string): string {
   const leading = /^\s*/.exec(raw)?.[0] ?? ''
   const trailing = /\s*$/.exec(raw)?.[0] ?? ''
   const body = raw.slice(leading.length, raw.length - trailing.length)
   if (!body) return raw
-  // Whitespace with a newline at the edges is dropped by JSX, plain spaces are kept and may be glued.
   const glueTrailing = trailing.length > 0 && !trailing.includes('\n')
   if (!glueTrailing) return `${leading}${typo(body)}${trailing}`
   const glued = typo(`${body} ${SENTINEL}`)
-  return `${leading}${glued.slice(0, -2)}${glued.at(-2) === '\u00A0' ? '\u00A0' : trailing}`
+  return `${leading}${glued.slice(0, -2)}${glued.at(-2) === ' ' ? ' ' : trailing}`
+}
+
+function isHumanText(node: Node, parent: Node | undefined, attributes: ReadonlySet<string>): boolean {
+  if (node.type !== 'Literal' || typeof node['value'] !== 'string') return false
+  if (parent?.type === 'JSXExpressionContainer') return true
+  const name = parent?.['name']
+  const value = parent?.['value']
+  return (
+    parent?.type === 'JSXAttribute' &&
+    isNode(name) &&
+    attributes.has(String(name['name'])) &&
+    isNode(value) &&
+    value.start === node.start
+  )
 }
 
 /**
- * Applies Russian typography (non-breaking spaces after prepositions, before particles, etc.)
- * to JSX text and human-readable string attributes at build time. Zero runtime cost.
+ * Расставляет неразрывные пробелы в русском тексте страниц при сборке. Файлы без русского текста не меняются.
+ * Возвращает исправленный код или пустое значение, если менять нечего.
+ */
+export function transformTypo(code: string, file: string, attributes: ReadonlySet<string> = new Set(DEFAULT_ATTRIBUTES)) {
+  if (!/[А-Яа-яЁё]/.test(code)) return null
+  const { program, errors } = parseSync(file, code, { lang: 'tsx', sourceType: 'module' })
+  if (errors.length > 0 || !isNode(program)) return null
+
+  const output = new MagicString(code)
+  walk(program, (node, parent) => {
+    if (node.type === 'JSXText') {
+      const raw = code.slice(node.start, node.end)
+      const next = typoJsxText(raw)
+      if (next !== raw) output.overwrite(node.start, node.end, next)
+    } else if (isHumanText(node, parent, attributes)) {
+      const value = String(node['value'])
+      const next = typo(value)
+      if (next !== value) output.overwrite(node.start, node.end, JSON.stringify(next))
+    }
+  })
+
+  if (!output.hasChanged()) return null
+  return { code: output.toString(), map: output.generateMap({ hires: 'boundary', source: file }) }
+}
+
+/**
+ * Русская типографика во всём тексте интерфейса без затрат при работе страницы.
+ * Предлоги и союзы не остаются в конце строки ни в тексте, ни в подписях полей.
  */
 export function typoPlugin(options: TypoPluginOptions = {}): Plugin {
   const attributes = new Set<string>(options.attributes ?? DEFAULT_ATTRIBUTES)
@@ -67,34 +107,8 @@ export function typoPlugin(options: TypoPluginOptions = {}): Plugin {
     enforce: 'pre',
     transform(code, id) {
       const file = id.split('?')[0] ?? id
-      if (!include.test(file) || file.includes('/node_modules/') || !/[А-Яа-яЁё]/.test(code)) return null
-
-      const { program, errors } = parseSync(file, code, { lang: 'tsx', sourceType: 'module' })
-      if (errors.length > 0) return null
-
-      const output = new MagicString(code)
-      walk(program as unknown as Node, (node, parent) => {
-        if (node.type === 'JSXText') {
-          const raw = code.slice(node.start, node.end)
-          const next = typoJsxText(raw)
-          if (next !== raw) output.overwrite(node.start, node.end, next)
-          return
-        }
-        const isAttributeValue =
-          parent?.type === 'JSXAttribute' &&
-          isNode(parent['name']) &&
-          attributes.has(String(parent['name']['name'])) &&
-          isNode(parent['value']) && parent['value'].start === node.start
-        const isChildExpression = parent?.type === 'JSXExpressionContainer'
-        if (node.type === 'Literal' && typeof node['value'] === 'string' && (isAttributeValue || isChildExpression)) {
-          const value = node['value']
-          const next = typo(value)
-          if (next !== value) output.overwrite(node.start, node.end, JSON.stringify(next))
-        }
-      })
-
-      if (!output.hasChanged()) return null
-      return { code: output.toString(), map: output.generateMap({ hires: 'boundary', source: file }) }
+      if (!include.test(file) || file.includes('/node_modules/')) return null
+      return transformTypo(code, file, attributes)
     },
   }
 }

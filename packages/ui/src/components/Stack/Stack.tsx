@@ -17,9 +17,23 @@ const stackVariants = cva('flex min-w-0', {
   defaultVariants: { direction: 'column', gap: 4, align: 'stretch', justify: 'start', wrap: false, grow: false },
 })
 
-export interface StackProps extends useRender.ComponentProps<'div'>, VariantProps<typeof stackVariants> {}
+/** Настройки раскладки блоков. */
+export interface StackProps extends useRender.ComponentProps<'div'> {
+  /** Блоки идут столбцом, строкой или столбцом на телефоне и строкой на широком экране. */
+  direction?: VariantProps<typeof stackVariants>['direction']
+  /** Расстояние между блоками из шкалы токенов. */
+  gap?: VariantProps<typeof stackVariants>['gap']
+  /** Выравнивание блоков поперёк направления. */
+  align?: VariantProps<typeof stackVariants>['align']
+  /** Распределение блоков вдоль направления. */
+  justify?: VariantProps<typeof stackVariants>['justify']
+  /** Блоки переносятся на новую строку, когда не помещаются. */
+  wrap?: VariantProps<typeof stackVariants>['wrap']
+  /** Блок занимает всё свободное место. */
+  grow?: VariantProps<typeof stackVariants>['grow']
+}
 
-/** Flex layout primitive: all spacing between blocks comes from the token scale. */
+/** Раскладка блоков столбцом или строкой. Расстояния между блоками берутся из шкалы токенов. */
 export function Stack({ render, className, direction, gap, align, justify, wrap, grow, ...props }: StackProps) {
   return useRender({
     defaultTagName: 'div',

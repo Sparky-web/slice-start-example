@@ -1,5 +1,4 @@
-import { formatDate } from '@repo/lib'
-import { Badge, Card, Container, Heading, Stack, Text } from '@repo/ui'
+import { Badge, Card, Container, DateTime, Heading, Stack, Text } from '@repo/ui'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { homePageQueries } from '../../api/homePageQueries.ts'
@@ -8,9 +7,10 @@ const features = [
   { title: 'TanStack Start', description: 'SSR, файловый роутинг и серверные функции на Vite' },
   { title: 'Prisma', description: 'Типизированная база данных прямо в серверных функциях' },
   { title: 'Дизайн-система', description: 'Токены из Figma, компоненты на Base UI и Tailwind' },
-  { title: 'FSD и линтинг', description: 'Слои, нейминг и запрет useEffect проверяются в CI' },
+  { title: 'FSD и линтинг', description: 'Слои, имена файлов и чистота кода проверяются автоматически' },
 ] as const
 
+/** Главная страница шаблона: что внутри и видит ли сайт базу данных. */
 export function HomePage() {
   const { data: status } = useSuspenseQuery(homePageQueries.status())
 
@@ -27,7 +27,7 @@ export function HomePage() {
               {status.database === 'ok' ? 'База данных подключена' : 'Нет подключения к базе'}
             </Badge>
             <Text size="sm" tone="muted">
-              Проверено {formatDate(status.checkedAt, 'dateTime')}
+              Проверено <DateTime value={status.checkedAt} preset="dateTime" />
             </Text>
           </Stack>
         </Stack>

@@ -4,16 +4,23 @@ import { cn } from '../../lib/cn/cn.ts'
 import { Heading } from '../Heading/Heading.tsx'
 import { Text } from '../Text/Text.tsx'
 
+/** Настройки карточки. */
 export interface CardProps {
+  /** Заголовок карточки. */
   title?: ReactNode
+  /** Пояснение под заголовком. */
   description?: ReactNode
-  /** Buttons or links in the card header. */
+  /** Кнопки и метки справа от заголовка. */
   actions?: ReactNode
+  /** Нижняя часть карточки с итоговыми действиями. */
   footer?: ReactNode
+  /** Содержимое карточки. */
   children?: ReactNode
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
+/** Карточка объединяет связанную информацию и действия в отдельный блок. */
 export function Card({ title, description, actions, footer, children, className }: CardProps) {
   const hasHeader = title !== undefined || description !== undefined || actions !== undefined
   return (

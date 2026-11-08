@@ -1,7 +1,10 @@
 import '../src/styles/globals.css'
 
+import { ensureTemporal } from '@repo/lib'
 import type { Preview } from '@storybook/react-vite'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+await ensureTemporal()
 
 const preview: Preview = {
   parameters: {

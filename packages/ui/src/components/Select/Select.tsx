@@ -4,24 +4,39 @@ import { Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '../../lib/cn/cn.ts'
 import { controlClassName } from '../Input/Input.tsx'
 
+/** Вариант в выпадающем списке. */
 export interface SelectOption<Value extends string> {
+  /** Значение, которое сохраняется при выборе. */
   value: Value
+  /** Текст, который видит пользователь. */
   label: string
+  /** Вариант виден, но недоступен для выбора. */
   disabled?: boolean
 }
 
+/** Настройки выпадающего списка. */
 export interface SelectProps<Value extends string> {
+  /** Варианты, из которых выбирает пользователь. */
   options: readonly SelectOption<Value>[]
+  /** Выбранный вариант или пустое значение. */
   value: Value | null
+  /** Пользователь выбрал вариант. */
   onValueChange: (value: Value | null) => void
+  /** Пользователь закрыл список. Форма показывает ошибки после закрытия. */
   onBlur?: () => void
+  /** Подсказка, пока ничего не выбрано. */
   placeholder?: string
+  /** Список недоступен для выбора. */
   disabled?: boolean
+  /** Имя поля при отправке формы. */
   name?: string
+  /** Идентификатор для связи с подписью. */
   id?: string
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
+/** Выпадающий список для выбора одного варианта. */
 export function Select<Value extends string>({
   options,
   value,

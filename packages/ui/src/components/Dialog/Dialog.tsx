@@ -4,24 +4,38 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { cn } from '../../lib/cn/cn.ts'
 
+/** Настройки диалога. */
 export interface DialogProps {
-  /** Element that opens the dialog, usually a `<Button />`. */
+  /** Кнопка, которая открывает диалог. */
   trigger?: ReactElement
+  /** Заголовок диалога. */
   title: ReactNode
+  /** Пояснение под заголовком. */
   description?: ReactNode
+  /** Содержимое диалога, обычно форма. */
   children: ReactNode
+  /** Диалог открыт. Без этого свойства диалог сам следит за открытием. */
   open?: boolean
+  /** Пользователь открыл или закрыл диалог. */
   onOpenChange?: (open: boolean) => void
+  /** Ширина диалога. */
   size?: 'sm' | 'md' | 'lg'
 }
 
 const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' } as const
 
+/** Диалог поверх страницы для короткой задачи: создать, изменить или подтвердить. */
 export function Dialog({ trigger, title, description, children, open, onOpenChange, size = 'md' }: DialogProps) {
   return (
     <BaseDialog.Root
       {...(open === undefined ? {} : { open })}
-      {...(onOpenChange === undefined ? {} : { onOpenChange: (next: boolean) => { onOpenChange(next) } })}
+      {...(onOpenChange === undefined
+        ? {}
+        : {
+            onOpenChange: (next: boolean) => {
+              onOpenChange(next)
+            },
+          })}
     >
       {trigger !== undefined && <BaseDialog.Trigger render={trigger} />}
       <BaseDialog.Portal>
@@ -39,7 +53,10 @@ export function Dialog({ trigger, title, description, children, open, onOpenChan
                 <BaseDialog.Description className="text-sm text-muted-foreground">{description}</BaseDialog.Description>
               )}
             </div>
-            <BaseDialog.Close aria-label="Закрыть" className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+            <BaseDialog.Close
+              aria-label="Закрыть"
+              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            >
               <X className="size-4" />
             </BaseDialog.Close>
           </div>

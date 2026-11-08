@@ -2,10 +2,13 @@ import { PrismaPg } from '@prisma/adapter-pg'
 
 import { PrismaClient } from './generated/client.ts'
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
+declare global {
+  // Одно подключение к базе переживает горячую перезагрузку в режиме разработки
+  var prismaClient: PrismaClient | undefined
+}
 
-/** Single Prisma client. Server-only: importing it into client code fails the build. */
+/** Подключение к базе данных. Работает только на сервере: браузерная сборка с ним не соберётся. */
 export const prisma =
-  globalForPrisma.prisma ?? new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] }) })
+  globalThis.prismaClient ?? new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] }) })
 
-if (process.env['NODE_ENV'] !== 'production') globalForPrisma.prisma = prisma
+if (process.env['NODE_ENV'] !== 'production') globalThis.prismaClient = prisma

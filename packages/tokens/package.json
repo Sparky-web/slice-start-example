@@ -12,9 +12,10 @@
     "typecheck": "tsc"
   },
   "devDependencies": {
-    "style-dictionary": "^5.8.0",
     "@repo/tsconfig": "workspace:*",
     "@types/node": "^24.0.0",
-    "typescript": "~6.0.3"
+    "style-dictionary": "^5.8.0",
+    "typescript": "~6.0.3",
+    "zod": "^4.6.7"
   }
 }

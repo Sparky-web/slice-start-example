@@ -4,16 +4,25 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn/cn.ts'
 
+/** Настройки флажка. */
 export interface CheckboxProps {
+  /** Флажок отмечен. */
   checked: boolean
+  /** Пользователь отметил флажок или снял отметку. */
   onCheckedChange: (checked: boolean) => void
+  /** Подпись рядом с флажком. Нажатие на подпись тоже переключает флажок. */
   label?: ReactNode
+  /** Пользователь ушёл с флажка. Форма показывает ошибки после ухода. */
   onBlur?: () => void
+  /** Флажок недоступен. */
   disabled?: boolean
+  /** Имя поля при отправке формы. */
   name?: string
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
+/** Флажок для согласия или включения настройки. */
 export function Checkbox({ checked, onCheckedChange, label, onBlur, disabled, name, className }: CheckboxProps) {
   return (
     <label className={cn('inline-flex cursor-pointer items-center gap-2 text-sm select-none', className)}>

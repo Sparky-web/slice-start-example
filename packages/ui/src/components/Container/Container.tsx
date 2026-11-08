@@ -13,8 +13,15 @@ const containerVariants = cva('mx-auto w-full px-4 sm:px-6', {
   defaultVariants: { size: 'lg', padded: false },
 })
 
-export interface ContainerProps extends useRender.ComponentProps<'div'>, VariantProps<typeof containerVariants> {}
+/** Настройки области контента. */
+export interface ContainerProps extends useRender.ComponentProps<'div'> {
+  /** Наибольшая ширина контента: узкая для форм, широкая для таблиц. */
+  size?: VariantProps<typeof containerVariants>['size']
+  /** Добавляет отступы сверху и снизу страницы. */
+  padded?: VariantProps<typeof containerVariants>['padded']
+}
 
+/** Область контента страницы. Ограничивает ширину и выравнивает контент по центру экрана. */
 export function Container({ render, className, size, padded, ...props }: ContainerProps) {
   return useRender({
     defaultTagName: 'div',

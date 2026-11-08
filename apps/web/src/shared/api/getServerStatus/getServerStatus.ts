@@ -2,14 +2,17 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { prisma } from '~/shared/db'
 
+/** Состояние сервера для главной страницы шаблона. */
 export interface ServerStatus {
+  /** База данных отвечает или недоступна. */
   database: 'ok' | 'error'
+  /** Момент проверки. */
   checkedAt: string
 }
 
-/** Example of a server function: runs on the server, typed end to end on the client. */
+/** Проверяет, что сайт видит базу данных. Помогает убедиться, что шаблон настроен верно. */
 export const getServerStatus = createServerFn({ method: 'GET' }).handler(async (): Promise<ServerStatus> => {
-  const checkedAt = new Date().toISOString()
+  const checkedAt = Temporal.Now.instant().toString()
   try {
     await prisma.$queryRaw`SELECT 1`
     return { database: 'ok', checkedAt }

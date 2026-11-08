@@ -6,5 +6,5 @@
       "~/*": ["./src/*"]
     }
   },
-  "include": ["src", "prisma/**/*.ts", "vite.config.ts", "prisma.config.ts"]
+  "include": ["src", "prisma/**/*.ts", "vite.config.ts", "vitest.config.ts", "vitest.setup.ts", "prisma.config.ts"]
 }

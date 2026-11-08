@@ -6,6 +6,7 @@ import { cva } from 'class-variance-authority'
 
 import { cn } from '../../lib/cn/cn.ts'
 
+/** Варианты оформления текста из шкалы токенов. */
 export const textVariants = cva('', {
   variants: {
     size: { xs: 'text-xs', sm: 'text-sm', base: 'text-base', lg: 'text-lg' },
@@ -22,11 +23,21 @@ export const textVariants = cva('', {
   defaultVariants: { size: 'base', tone: 'default', weight: 'normal', truncate: false },
 })
 
-export interface TextProps extends useRender.ComponentProps<'p'>, VariantProps<typeof textVariants> {}
+/** Настройки текстового блока. */
+export interface TextProps extends useRender.ComponentProps<'p'> {
+  /** Размер шрифта из шкалы токенов. */
+  size?: VariantProps<typeof textVariants>['size']
+  /** Смысловой цвет: основной, второстепенный, ошибка или успех. */
+  tone?: VariantProps<typeof textVariants>['tone']
+  /** Насыщенность шрифта. */
+  weight?: VariantProps<typeof textVariants>['weight']
+  /** Обрезает длинный текст многоточием в одну строку. */
+  truncate?: VariantProps<typeof textVariants>['truncate']
+}
 
 /**
- * Body text. String children get Russian typography at runtime,
- * static JSX text is processed at build time by `typoPlugin`.
+ * Основной текст интерфейса.
+ * Короткие слова не отрываются от следующего слова при переносе строки.
  */
 export function Text({ render, className, size, tone, weight, truncate, children, ...props }: TextProps) {
   return useRender({

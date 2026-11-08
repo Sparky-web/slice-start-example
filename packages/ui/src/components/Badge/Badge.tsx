@@ -18,11 +18,17 @@ const badgeVariants = cva('inline-flex items-center gap-1 rounded-full border px
   defaultVariants: { tone: 'neutral' },
 })
 
-export interface BadgeProps extends VariantProps<typeof badgeVariants> {
+/** Настройки метки. */
+export interface BadgeProps {
+  /** Смысловой цвет: нейтральный, сведения, успех, предупреждение или ошибка. */
+  tone?: VariantProps<typeof badgeVariants>['tone']
+  /** Текст метки. */
   children: ReactNode
+  /** Редкое исключение для раскладки на странице. */
   className?: string
 }
 
+/** Короткая метка статуса, приоритета или количества. */
 export function Badge({ tone, children, className }: BadgeProps) {
   return <span className={cn(badgeVariants({ tone }), className)}>{children}</span>
 }

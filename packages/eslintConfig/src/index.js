@@ -12,12 +12,14 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 import { fileStructure } from './rules/fileStructure.js'
+import { DATE_SYNTAX, effectMessage } from './shared.js'
 
-const repoPlugin = { meta: { name: 'repo' }, rules: { 'file-structure': fileStructure } }
-
-const effectMessage =
-  'Effects are forbidden: load data in route loaders / useQuery, react to events in handlers, derive values during render. ' +
-  'For a rare external subscription use useSyncExternalStore.'
+const repoPlugin = {
+  meta: { name: 'repo' },
+  rules: {
+    'file-structure': fileStructure,
+  },
+}
 
 /** Arbitrary Tailwind values like `w-[37px]` or `text-[#fff]` bypass design tokens. */
 const ARBITRARY_VALUE = String.raw`^.*\[(?!&)[^\[\]]*\](?!:).*$`
@@ -41,6 +43,10 @@ export const base = (tsconfigRootDir) => [
       '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/no-explicit-any': 'error',
+      // `as` hides type errors: use satisfies, type guards or generics. `as const` stays allowed.
+      '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-empty-object-type': ['error', { allowInterfaces: 'with-single-extends' }],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -179,6 +185,7 @@ export const app = ({ files }) => [
           selector: `JSXOpeningElement[name.name=/^(${RAW_ELEMENTS})$/]`,
           message: 'Use design system components (Button, Input, Text, Heading, TextLink, DataTable, form.Form…) instead of raw elements.',
         },
+        ...DATE_SYNTAX,
       ],
       'no-restricted-imports': [
         'error',
@@ -191,11 +198,15 @@ export const app = ({ files }) => [
             { name: 'tailwind-merge', message: 'Styling lives in the design system (@repo/ui).' },
             { name: '@tanstack/react-form', message: 'Use useAppForm from @repo/ui/form.' },
             { name: '@tanstack/react-table', message: 'Use DataTable from @repo/ui.' },
+            { name: 'moment', message: 'Используйте Temporal.' },
+            { name: 'dayjs', message: 'Используйте Temporal.' },
+            { name: 'date-fns', message: 'Используйте Temporal и форматирование дат из @repo/lib.' },
           ],
           patterns: [
             { group: ['@base-ui/react', '@base-ui/react/*'], message: 'Use design system components from @repo/ui.' },
             { group: ['ag-grid-*', '@ag-grid-*/*'], message: 'Use DataGrid from @repo/ui/dataGrid.' },
             { group: ['lodash/*', 'lodash-es'], message: 'Use es-toolkit or @repo/lib.' },
+            { group: ['date-fns/*'], message: 'Используйте Temporal и форматирование дат из @repo/lib.' },
             { group: ['@repo/*/src/*'], message: 'Import packages through their public entry points.' },
           ],
         },
@@ -255,3 +266,6 @@ export const ignores = [
     ],
   },
 ]
+
+export { dates } from './dates.js'
+export { docs } from './docs.js'

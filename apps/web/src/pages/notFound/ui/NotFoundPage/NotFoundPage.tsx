@@ -1,6 +1,7 @@
 import { ButtonLink, Container, EmptyState } from '@repo/ui'
 import { Link } from '@tanstack/react-router'
 
+/** Страница для неверного адреса. Пользователь возвращается на главную одной кнопкой. */
 export function NotFoundPage() {
   return (
     <Container padded size="sm">

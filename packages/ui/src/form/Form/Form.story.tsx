@@ -15,9 +15,18 @@ const statuses = [
   { value: 'done', label: 'Готово' },
 ] as const
 
+interface DemoValues {
+  title: string
+  status: 'todo' | 'done' | null
+  description: string
+  urgent: boolean
+}
+
+const defaultValues: DemoValues = { title: '', status: null, description: '', urgent: false }
+
 function DemoForm() {
   const form = useAppForm({
-    defaultValues: { title: '', status: null as 'todo' | 'done' | null, description: '', urgent: false },
+    defaultValues,
     validators: { onChange: schema },
     onSubmit: () => undefined,
   })

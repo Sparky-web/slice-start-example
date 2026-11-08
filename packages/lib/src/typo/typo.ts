@@ -13,11 +13,10 @@ const NUMBER_UNIT = /(\d)[ \t]+(?=[^\s\d—–-])/g
 const DASH = /[ \t]+(—|–)(?=\s)/g
 
 /**
- * Russian typography: keeps short words (prepositions, conjunctions, particles),
- * numbers and dashes glued to their neighbours so they never stay alone at a line end.
- * Idempotent, safe to apply repeatedly.
- *
- * @example typo('Работа в офисе') // 'Работа в\u00A0офисе'
+ * Русская типографика для текста интерфейса.
+ * Предлоги, союзы и частицы не остаются в конце строки.
+ * Число не отрывается от единицы, тире не переносится на новую строку.
+ * Повторная обработка не меняет текст.
  */
 export function typo(text: string): string {
   return text

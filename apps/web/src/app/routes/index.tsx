@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { HomePage, homePageQueries } from '~/pages/home'
 
+/** Главная страница. Сервер отдаёт её готовой, поэтому поисковики видят содержимое. */
 export const Route = createFileRoute('/')({
   loader: ({ context }) => context.queryClient.query(homePageQueries.status()),
   head: () => ({

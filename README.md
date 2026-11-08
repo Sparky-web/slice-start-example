@@ -16,6 +16,8 @@ pnpm storybook                           # http://localhost:6006
 
 Перед коммитом: `pnpm check` (токены, типы, линтеры, FSD, тесты, сборка).
 
+Правила для людей и ИИ-агентов: [AGENTS.md](AGENTS.md).
+
 ## Стек
 
 | Задача | Решение |
@@ -25,7 +27,8 @@ pnpm storybook                           # http://localhost:6006
 | Дизайн-система | `@repo/ui`: Base UI + Tailwind v4 + cva, токены из Figma (`@repo/tokens`) |
 | Формы | TanStack Form `createFormHook`, поля из дизайн-системы |
 | Таблицы | `DataTable` (TanStack Table v9 + Virtual + бесконечная подгрузка), `DataGrid` (AG Grid Community, MIT) |
-| Утилиты | `@repo/lib`, es-toolkit, date-fns |
+| Даты | Temporal с полифилом для браузеров и сервера без поддержки, настройка часового пояса |
+| Утилиты | `@repo/lib`, es-toolkit |
 | Типографика | `typo()` и Vite-плагин: неразрывные пробелы после предлогов на этапе сборки |
 | Качество | ESLint (strict-type-checked), Steiger, eslint-plugin-boundaries, dependency-cruiser, jscpd |
 | Тесты | Vitest 5 (browser mode), Storybook 10, скриншоты в `screens/` |
@@ -81,6 +84,12 @@ Prisma доступна только через `~/shared/db` (`prisma.server.ts
 - В приложении запрещены `style`, сырые `<button>`, `<input>`, `<a>`, `<p>`, `<h1>`… а также `clsx`, `cva`, `@base-ui/*`, `ag-grid-*` напрямую. Всё собирается из `@repo/ui`.
 - Исключение оформляется точечно: `// eslint-disable-next-line <rule> -- причина`. Без описания причины линтер не пропустит.
 
+### Документация и типы
+
+- JSDoc обязателен для экспортов и пропсов: русский язык, продуктовый смысл, упрощённый технический русский. Проверяют `eslint-plugin-jsdoc` и собственное правило `repo-docs/jsdoc-product`.
+- Пропсы компонента — `interface …Props` в файле компонента (`repo-docs/component-props-interface`).
+- `as` запрещён, кроме `as const`. Используйте `satisfies`, проверки типов и Zod.
+
 ### React
 
 - `useEffect`, `useLayoutEffect`, `useInsertionEffect` запрещены. Данные загружаются в `loader` роута и через `useQuery`, на события реагируют в обработчиках, производные значения считаются во время рендера.
@@ -116,14 +125,35 @@ const form = useAppForm({
 
 ## Таблицы
 
-```tsx
-const column = createDataTableColumns<Task>()
-const columns = column.columns([column.accessor('title', { header: 'Название' })])
+`DataTable` и `DataGrid` используют один контракт: `ListRequest` (`offset`, `limit`, `sort`, `desc`, `filters`) → `ListPage` (`items`, `total`).
 
-<DataTable columns={columns} query={taskQueries.list(filters)} getRowId={(task) => task.id} />
+```ts
+// Сервер: только условия доступа и вид строки
+export const listTasks = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .validator(listRequestSchema(taskFiltersSchema).extend({ projectId: z.string() }))
+  .handler(async ({ data, context }) => {
+    const where = { projectId: data.projectId, project: { ownerId: context.user.id } }
+    const [rows, total] = await prisma.$transaction([
+      prisma.task.findMany({ where, ...pageArgs(data, taskSortFields, 'createdAt') }),
+      prisma.task.count({ where }),
+    ])
+    return { items: rows.map(toTaskItem), total }
+  })
+
+// Клиент
+const query = listQueryOptions({ queryKey: ['tasks', search], fetchPage: (page) => listTasks({ data: { ...page, ...search } }) })
+<DataTable columns={columns} query={query} getRowId={(task) => task.id} />
 ```
 
-Серверная функция возвращает `DataPage<T>`: `{ items, nextCursor, total }`. Сортировку храните в search params роута.
+Генератор серверных функций сознательно не используется: компилятор TanStack Start находит `createServerFn` только на верхнем уровне модуля, а условия доступа должны быть видны в каждой функции.
+
+## Даты и часовой пояс
+
+- Только Temporal: `new Date()`, `Date.now()` и библиотеки дат запрещены линтером.
+- Полифил подгружается до старта роутера только там, где нет встроенного Temporal (Node 24, старые браузеры).
+- Часовой пояс показа: настройка пользователя → `APP_TIME_ZONE` сайта → пояс устройства.
+- Пояс устройства браузер сохраняет в cookie, поэтому со второго визита сервер сразу рисует даты в нужном поясе. При первом визите компонент даты переключается на пояс устройства после загрузки без ошибки гидрации.
 
 ## Скриншоты
 
